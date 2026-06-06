@@ -119,6 +119,7 @@ itself (distinct from the global `overview`, which describes the agent).
 ENTRIES: dict[tuple[str, ...], str] = {
     (): _ROOT,
     ("coherence-cli",): _ROOT,
+    ("coherence",): _ROOT,
     ("whoami",): _WHOAMI,
     ("learn",): _LEARN,
     ("explain",): _EXPLAIN,
