@@ -90,6 +90,12 @@ def _collect_texts() -> list[str]:
 def main() -> None:
     texts = _collect_texts()
     vectors = embed_texts(texts)
+    if len(vectors) != len(texts):
+        raise RuntimeError(
+            f"embed_texts returned {len(vectors)} vectors for {len(texts)} texts "
+            f"(expected {len(texts)}, got {len(vectors)}); refusing to write a "
+            "truncated recorded_vectors.json"
+        )
     recorded = {text: vector for text, vector in zip(texts, vectors)}
 
     RECORDED_PATH.parent.mkdir(parents=True, exist_ok=True)

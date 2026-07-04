@@ -118,3 +118,92 @@ def test_embed_timeout_defaults_and_env_override(monkeypatch: pytest.MonkeyPatch
     # a malformed value falls back to the default rather than erroring
     monkeypatch.setenv("COHERENCE_EMBED_TIMEOUT", "not-a-number")
     assert _embed_timeout() == _DEFAULT_TIMEOUT
+
+
+@pytest.mark.parametrize("raw", ["0", "-5", "nan", "inf"])
+def test_embed_timeout_rejects_non_positive_and_non_finite(
+    monkeypatch: pytest.MonkeyPatch, raw: str
+) -> None:
+    # Zero/negative/non-finite values are meaningless as an httpx timeout and
+    # would fail obscurely at request time, so they fall back to the default.
+    monkeypatch.setenv("COHERENCE_EMBED_TIMEOUT", raw)
+    assert _embed_timeout() == _DEFAULT_TIMEOUT
+
+
+# --- HTTP-status and malformed-response errors ---------------------------
+
+
+def test_500_response_raises_embed_unavailable_naming_env_vars(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(500, json={"error": "internal server error"})
+
+    transport = httpx.MockTransport(handler)
+
+    with pytest.raises(EmbedUnavailable) as excinfo:
+        embed_texts(["x"], transport=transport)
+
+    message = str(excinfo.value)
+    assert "COHERENCE_EMBED_URL" in message
+    assert "COHERENCE_EMBED_MODEL" in message
+    assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)
+
+
+def test_401_response_raises_embed_unavailable_naming_env_vars(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(401, json={"error": "unauthorized"})
+
+    transport = httpx.MockTransport(handler)
+
+    with pytest.raises(EmbedUnavailable) as excinfo:
+        embed_texts(["x"], transport=transport)
+
+    message = str(excinfo.value)
+    assert "COHERENCE_EMBED_URL" in message
+    assert "COHERENCE_EMBED_MODEL" in message
+    assert isinstance(excinfo.value.__cause__, httpx.HTTPStatusError)
+
+
+def test_malformed_body_missing_embedding_key_raises_embed_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"data": [{}]})
+
+    transport = httpx.MockTransport(handler)
+
+    with pytest.raises(EmbedUnavailable) as excinfo:
+        embed_texts(["x"], transport=transport)
+
+    message = str(excinfo.value)
+    assert "COHERENCE_EMBED_URL" in message
+    assert "COHERENCE_EMBED_MODEL" in message
+    assert isinstance(excinfo.value.__cause__, KeyError)
+
+
+def test_malformed_body_missing_data_key_raises_embed_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clear_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={})
+
+    transport = httpx.MockTransport(handler)
+
+    with pytest.raises(EmbedUnavailable) as excinfo:
+        embed_texts(["x"], transport=transport)
+
+    message = str(excinfo.value)
+    assert "COHERENCE_EMBED_URL" in message
+    assert "COHERENCE_EMBED_MODEL" in message
+    assert isinstance(excinfo.value.__cause__, KeyError)

@@ -189,6 +189,66 @@ def test_meaning_score_missing_file_is_user_error(
     assert payload["remediation"]
 
 
+def test_meaning_score_directory_path_is_user_error(
+    tmp_path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    directory = tmp_path / "a_dir"
+    directory.mkdir()
+
+    def _raise(path: str) -> dict:
+        raise IsADirectoryError(21, "Is a directory", path)
+
+    monkeypatch.setattr("coherence.cli._commands.meaning.score", _raise)
+
+    rc = main(["meaning", "score", str(directory), "--json"])
+    assert rc == 1
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["code"] == 1
+    assert "directory" in payload["message"]
+    assert str(directory) in payload["message"]
+    assert payload["remediation"]
+
+
+def test_meaning_score_non_utf8_file_is_user_error(
+    tmp_path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifact = tmp_path / "bad_encoding.md"
+    artifact.write_bytes(b"\xff\xfe\x00\x01")
+
+    def _raise(path: str) -> dict:
+        raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+
+    monkeypatch.setattr("coherence.cli._commands.meaning.score", _raise)
+
+    rc = main(["meaning", "score", str(artifact), "--json"])
+    assert rc == 1
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["code"] == 1
+    assert "not valid UTF-8" in payload["message"]
+    assert str(artifact) in payload["message"]
+    assert payload["remediation"]
+
+
+def test_meaning_score_permission_error_is_env_error(
+    tmp_path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifact = tmp_path / "unreadable.md"
+    artifact.write_text("x", encoding="utf-8")
+
+    def _raise(path: str) -> dict:
+        raise PermissionError(13, "Permission denied", path)
+
+    monkeypatch.setattr("coherence.cli._commands.meaning.score", _raise)
+
+    rc = main(["meaning", "score", str(artifact), "--json"])
+    assert rc == 2
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["code"] == 2
+    assert "unreadable" in payload["message"]
+    assert str(artifact) in payload["message"]
+    assert payload["remediation"]
+
+
 def test_meaning_score_embed_unavailable_is_env_error(
     tmp_path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:

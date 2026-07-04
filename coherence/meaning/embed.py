@@ -19,6 +19,7 @@ names both environment variables; raw ``httpx`` errors never escape.
 
 from __future__ import annotations
 
+import math
 import os
 
 import httpx
@@ -55,9 +56,14 @@ def _embed_timeout() -> float:
     if raw is None:
         return _DEFAULT_TIMEOUT
     try:
-        return float(raw)
+        value = float(raw)
     except ValueError:
         return _DEFAULT_TIMEOUT
+    # Reject non-finite (nan/inf) and non-positive values: they are meaningless
+    # as an httpx timeout and would fail obscurely at request time.
+    if not math.isfinite(value) or value <= 0:
+        return _DEFAULT_TIMEOUT
+    return value
 
 
 def embed_texts(
@@ -81,8 +87,10 @@ def embed_texts(
 
     Raises:
         EmbedUnavailable: The endpoint could not be reached (connection,
-            timeout, or transport error). The message names both
-            ``COHERENCE_EMBED_URL`` and ``COHERENCE_EMBED_MODEL``.
+            timeout, or transport error); the endpoint responded with an
+            HTTP error status (4xx/5xx); or the response body was malformed
+            or missing the expected ``data[i].embedding`` shape. The message
+            names both ``COHERENCE_EMBED_URL`` and ``COHERENCE_EMBED_MODEL``.
     """
     url = _embed_url()
     model = _embed_model()
@@ -97,6 +105,7 @@ def embed_texts(
         response = client.post(endpoint, json=payload)
         response.raise_for_status()
         data = response.json()
+        return [item["embedding"] for item in data["data"]]
     except (httpx.ConnectError, httpx.TimeoutException, httpx.TransportError) as exc:
         raise EmbedUnavailable(
             f"Embedding endpoint unreachable at {endpoint!r}: {exc}. "
@@ -104,11 +113,25 @@ def embed_texts(
             f"Set COHERENCE_EMBED_URL (currently {url!r}) to the base URL and "
             f"COHERENCE_EMBED_MODEL (currently {model!r}) to a served model."
         ) from exc
+    except httpx.HTTPStatusError as exc:
+        raise EmbedUnavailable(
+            f"Embedding endpoint at {endpoint!r} returned an error status "
+            f"({exc.response.status_code}). "
+            f"Set COHERENCE_EMBED_URL (currently {url!r}) and "
+            f"COHERENCE_EMBED_MODEL (currently {model!r}) to a reachable "
+            "endpoint and a served model."
+        ) from exc
+    except (KeyError, TypeError, ValueError) as exc:
+        raise EmbedUnavailable(
+            f"Embedding endpoint at {endpoint!r} returned a malformed or "
+            f"unexpected response body: {exc}. "
+            f"Set COHERENCE_EMBED_URL (currently {url!r}) and "
+            f"COHERENCE_EMBED_MODEL (currently {model!r}) to a reachable "
+            "OpenAI-compatible /v1/embeddings endpoint."
+        ) from exc
     finally:
         if owns_client:
             client.close()
-
-    return [item["embedding"] for item in data["data"]]
 
 
 __all__ = ["embed_texts", "DEFAULT_EMBED_URL", "DEFAULT_EMBED_MODEL"]

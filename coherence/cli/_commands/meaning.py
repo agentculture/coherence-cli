@@ -21,6 +21,14 @@ exception becomes an opaque exit 1. So engine exceptions are converted here:
   embedding endpoint is unreachable (an environment problem, not user input).
   Caught explicitly so it never escapes and gets mislabelled as exit 1.
 * :class:`FileNotFoundError` (a bad artifact path) → ``EXIT_USER_ERROR`` (1).
+* :class:`IsADirectoryError` (path is a directory, not a file) →
+  ``EXIT_USER_ERROR`` (1).
+* :class:`UnicodeDecodeError` (artifact is not valid UTF-8) →
+  ``EXIT_USER_ERROR`` (1).
+* :class:`OSError` (e.g. ``PermissionError``, or any other unreadable file) →
+  ``EXIT_ENV_ERROR`` (2) — matches the documented exit-code policy in
+  :mod:`coherence.cli._errors` ("2 = environment / setup error … file
+  unreadable").
 * ``trend`` with fewer than 2 files → ``EXIT_USER_ERROR`` (1), checked in the
   handler because argparse ``nargs='+'`` still admits a single file.
 """
@@ -43,6 +51,13 @@ _EMBED_REMEDIATION = (
     "OpenAI-compatible /v1/embeddings endpoint"
 )
 _MISSING_FILE_REMEDIATION = "check that the artifact path exists and is a readable UTF-8 file"
+_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
+_ENCODING_REMEDIATION = "re-save the artifact as UTF-8 text"
+_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
+
+# Shared across the noun's ``--json`` flag and all three verbs' ``--json`` flags
+# (SonarCloud S1192 — avoid the duplicated string literal).
+_JSON_HELP = "Emit structured JSON."
 
 # The noun's own verb surface (distinct from the global overview's verb list).
 _VERBS = [
@@ -55,9 +70,13 @@ _VERBS = [
 def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
     """Run an engine call, converting its exceptions into :class:`CliError`.
 
-    ``missing_path`` is the fallback shown in a ``file not found`` message when
-    the raised :class:`FileNotFoundError` carries no ``filename`` (e.g. a test
-    stub raising it bare).
+    ``missing_path`` is the fallback shown in a ``file not found`` (or other
+    path-related) message when the raised exception carries no ``filename``
+    (e.g. a test stub raising it bare).
+
+    Order matters: :class:`IsADirectoryError` and :class:`PermissionError` are
+    both subclasses of :class:`OSError`, so their handlers must come before
+    the catch-all ``OSError`` branch.
     """
     try:
         return fn()
@@ -73,6 +92,26 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
             code=EXIT_USER_ERROR,
             message=f"file not found: {missing}",
             remediation=_MISSING_FILE_REMEDIATION,
+        ) from err
+    except IsADirectoryError as err:
+        path = getattr(err, "filename", None) or missing_path
+        raise CliError(
+            code=EXIT_USER_ERROR,
+            message=f"expected a file but got a directory: {path}",
+            remediation=_DIRECTORY_REMEDIATION,
+        ) from err
+    except UnicodeDecodeError as err:
+        raise CliError(
+            code=EXIT_USER_ERROR,
+            message=f"file is not valid UTF-8 text: {missing_path}",
+            remediation=_ENCODING_REMEDIATION,
+        ) from err
+    except OSError as err:
+        path = getattr(err, "filename", None) or missing_path
+        raise CliError(
+            code=EXIT_ENV_ERROR,
+            message=f"file unreadable: {path}: {err.strerror or err}",
+            remediation=_UNREADABLE_REMEDIATION,
         ) from err
 
 
@@ -191,7 +230,7 @@ def register(sub: argparse._SubParsersAction) -> None:
         "meaning",
         help="Score/compare/trend an artifact's meaning gradient (see 'coherence meaning').",
     )
-    p.add_argument("--json", action="store_true", help="Emit structured JSON.")
+    p.add_argument("--json", action="store_true", help=_JSON_HELP)
     p.set_defaults(func=_no_verb, json=False)
     # `p` is a _CliArgumentParser (propagated via parser_class) so nested-verb
     # parse errors route through the structured error contract, not argparse's
@@ -200,7 +239,7 @@ def register(sub: argparse._SubParsersAction) -> None:
 
     sc = noun_sub.add_parser("score", help="Score one artifact's meaning gradient.")
     sc.add_argument("file", help="Path to the artifact to score.")
-    sc.add_argument("--json", action="store_true", help="Emit structured JSON.")
+    sc.add_argument("--json", action="store_true", help=_JSON_HELP)
     sc.set_defaults(func=cmd_score)
 
     cmp_ = noun_sub.add_parser(
@@ -209,7 +248,7 @@ def register(sub: argparse._SubParsersAction) -> None:
     )
     cmp_.add_argument("before", help="Path to the earlier artifact version.")
     cmp_.add_argument("after", help="Path to the later artifact version.")
-    cmp_.add_argument("--json", action="store_true", help="Emit structured JSON.")
+    cmp_.add_argument("--json", action="store_true", help=_JSON_HELP)
     cmp_.set_defaults(func=cmd_compare)
 
     tr = noun_sub.add_parser(
@@ -221,5 +260,5 @@ def register(sub: argparse._SubParsersAction) -> None:
         nargs="+",
         help="Two or more artifact paths, in series order.",
     )
-    tr.add_argument("--json", action="store_true", help="Emit structured JSON.")
+    tr.add_argument("--json", action="store_true", help=_JSON_HELP)
     tr.set_defaults(func=cmd_trend)
