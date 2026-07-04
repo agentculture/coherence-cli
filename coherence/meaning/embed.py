@@ -7,8 +7,10 @@ from the response ``data[i].embedding`` in request order.
 Configuration is read from the environment *at call time* so callers (and
 tests) can override it per-invocation:
 
-- ``COHERENCE_EMBED_URL``   — base URL, default ``http://localhost:8002/v1``
-- ``COHERENCE_EMBED_MODEL`` — model id, default ``Qwen/Qwen3-Embedding-0.6B``
+- ``COHERENCE_EMBED_URL``     — base URL, default ``http://localhost:8002/v1``
+- ``COHERENCE_EMBED_MODEL``   — model id, default ``Qwen/Qwen3-Embedding-0.6B``
+- ``COHERENCE_EMBED_TIMEOUT`` — request timeout in seconds, default ``30`` (raise
+  it for gears that lazy-load the model on the first request)
 
 Transport failures (connect/timeout/transport) are wrapped in
 :class:`~coherence.meaning.EmbedUnavailable` with an actionable message that
@@ -27,6 +29,8 @@ DEFAULT_EMBED_URL = "http://localhost:8002/v1"
 DEFAULT_EMBED_MODEL = "Qwen/Qwen3-Embedding-0.6B"
 
 # Conservative default so a missing endpoint fails fast rather than hanging.
+# Overridable via COHERENCE_EMBED_TIMEOUT for gears that lazy-load the model on
+# first request (a cold start can exceed the default).
 _DEFAULT_TIMEOUT = 30.0
 
 
@@ -38,6 +42,22 @@ def _embed_url() -> str:
 def _embed_model() -> str:
     """Return the configured model id, read from the environment at call time."""
     return os.environ.get("COHERENCE_EMBED_MODEL", DEFAULT_EMBED_MODEL)
+
+
+def _embed_timeout() -> float:
+    """Return the request timeout (seconds), read from the environment at call time.
+
+    Defaults to ``_DEFAULT_TIMEOUT``; raise ``COHERENCE_EMBED_TIMEOUT`` for embed
+    gears that load the model lazily on the first request. A malformed value falls
+    back to the default rather than erroring.
+    """
+    raw = os.environ.get("COHERENCE_EMBED_TIMEOUT")
+    if raw is None:
+        return _DEFAULT_TIMEOUT
+    try:
+        return float(raw)
+    except ValueError:
+        return _DEFAULT_TIMEOUT
 
 
 def embed_texts(
@@ -71,7 +91,7 @@ def embed_texts(
 
     owns_client = client is None
     if client is None:
-        client = httpx.Client(transport=transport, timeout=_DEFAULT_TIMEOUT)
+        client = httpx.Client(transport=transport, timeout=_embed_timeout())
 
     try:
         response = client.post(endpoint, json=payload)

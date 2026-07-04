@@ -13,8 +13,10 @@ import pytest
 
 from coherence.meaning import EmbedUnavailable
 from coherence.meaning.embed import (
+    _DEFAULT_TIMEOUT,
     DEFAULT_EMBED_MODEL,
     DEFAULT_EMBED_URL,
+    _embed_timeout,
     embed_texts,
 )
 
@@ -105,3 +107,14 @@ def test_timeout_raises_embed_unavailable(monkeypatch: pytest.MonkeyPatch) -> No
     message = str(excinfo.value)
     assert "COHERENCE_EMBED_URL" in message
     assert "COHERENCE_EMBED_MODEL" in message
+
+
+def test_embed_timeout_defaults_and_env_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("COHERENCE_EMBED_TIMEOUT", raising=False)
+    assert _embed_timeout() == _DEFAULT_TIMEOUT
+    # raise it for gears that lazy-load the model on the first request
+    monkeypatch.setenv("COHERENCE_EMBED_TIMEOUT", "120")
+    assert _embed_timeout() == 120.0
+    # a malformed value falls back to the default rather than erroring
+    monkeypatch.setenv("COHERENCE_EMBED_TIMEOUT", "not-a-number")
+    assert _embed_timeout() == _DEFAULT_TIMEOUT
