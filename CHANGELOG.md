@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/). This project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-07-04
+
+### Added
+
+- Converged devague spec for Meaning Gradient as a coherence dimension (issue #4 phases 1-2 + trend f-prime/f-double-prime extension): docs/specs/2026-07-04-coherence-cli-ships-meaning-gradient-as-a-measurab.md
+- Build plan (10 tasks, 6 file-disjoint waves) covering all 30 spec targets: docs/plans/2026-07-04-coherence-cli-ships-meaning-gradient-as-a-measurab.md
+- Eidetic memory record: devague converge-gate covers all frame claims
+
+### Changed
+
+- markdownlint: ignore devague exports (docs/specs, docs/plans) and .devague working state as generated artifacts, in config and CI
+
 ## [0.4.0] - 2026-06-24
 
 ### Added

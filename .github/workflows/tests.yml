@@ -69,7 +69,7 @@ jobs:
       - name: markdownlint-cli2
         run: |
           npm install -g markdownlint-cli2@0.21.0
-          markdownlint-cli2 "**/*.md" "#node_modules" "#.local" "#.claude/skills" "#.teken"
+          markdownlint-cli2 "**/*.md" "#node_modules" "#.local" "#.claude/skills" "#.teken" "#docs/specs" "#docs/plans"
 
       - name: afi rubric gate
         run: uv run teken cli doctor . --strict
