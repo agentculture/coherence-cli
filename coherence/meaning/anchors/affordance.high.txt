@@ -1,0 +1,5 @@
+Run `make rollback` to restore the previous release.
+Set `MAX_RETRIES=3` in config.yaml and redeploy.
+Open Settings, then Security, then Rotate Key to fix it.
+Apply the patch with `git cherry-pick a1b2c3d` and push to main.
+Delete the stale lock file at /var/run/app.lock, then restart the service.
