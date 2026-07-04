@@ -1,0 +1,1 @@
+The payment webhook has some kind of issue with a few of the events. Occasionally things do not seem to go through all the way. We could maybe adjust the config later if we get to it. It is probably fine most of the time anyway. Payments are generally handled somewhere in there.

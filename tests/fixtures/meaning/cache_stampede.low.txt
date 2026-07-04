@@ -1,0 +1,1 @@
+The cache does something under load every so often. There was a situation with the database recently. We think it could probably be tuned somehow. Maybe someone will improve the caching eventually when there is time. Traffic stuff happens now and then.

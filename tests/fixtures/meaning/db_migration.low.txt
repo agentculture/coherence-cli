@@ -1,0 +1,1 @@
+We are doing a database migration for the orders table. Some of the columns are changing around a bit. Reports might be affected in some way or another. People should probably check on things afterward just in case. The data will move around a little.
