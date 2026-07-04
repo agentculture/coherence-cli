@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/). This project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-04
+
+### Added
+
+- **Meaning Gradient coherence dimension** — a `coherence meaning` noun with `score <file>`, `compare <before> <after>`, and `trend <f1> <f2> …` verbs (all `--json`, exit codes 0/1/2). Measures a global `meaning_score` plus five subdimensions (consequence, agency, causality, affordance, future_constraint) via anchor-axis projection, with rule-based diagnostics (missing_consequence / missing_owner / missing_next_action). Implements issue #4 phases 1-2 + the trend extension (issue #6).
+- Anchor-axis scoring engine (`coherence/meaning/`): env-configured OpenAI-compatible embedding client (`COHERENCE_EMBED_URL` / `COHERENCE_EMBED_MODEL`, EmbedUnavailable → exit 2 with a hint; diagnostics still run offline), in-repo plain-text anchor fixtures, score/compare/trend engines, and an open `subdimensions` map.
+- `trend` trajectory signals — per-step first (f', velocity) and second (f'', acceleration) differences of the score signals and of embedding drift over an ordered measurement-point series (2+ points → f', 3+ → f'').
+- Example phase-3 experiment config `examples/experiments/issue-priority.yaml` and a README "Meaning Gradient" section (anchor-axis method, JSON contract, steward/eidetic/taskmaster consumer map, scope boundary).
+- Offline integration tests + recorded-vector fixture mechanism (`scripts/refresh_meaning_vectors.py`) so CI runs with zero network access; the high>low falsifiability ordering test is gated on committed recorded vectors.
+- `numpy` and `httpx` as the package's first runtime dependencies.
+
 ## [0.4.1] - 2026-07-04
 
 ### Added
