@@ -4,7 +4,7 @@
   "schema_version": 1,
   "status": "exported",
   "created": "2026-07-04T07:08:00Z",
-  "updated": "2026-07-04T07:16:22Z",
+  "updated": "2026-07-04T07:21:10Z",
   "claims": [
     {
       "id": "c1",
@@ -91,12 +91,12 @@
       "kind": "boundary",
       "text": "This spec covers issue #4 phases 1-2 only (score + compare). No separate meaning-cli, no LLM judge, no experiment runner execution, no doctor/certify integration, no pluggable embedding providers \u2014 those are tracked follow-ups, not silent scope.",
       "origin": "llm",
-      "status": "confirmed",
+      "status": "rejected",
       "honesty_conditions": [
         {
           "id": "h12",
           "text": "No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope.",
-          "status": "confirmed"
+          "status": "rejected"
         }
       ],
       "hard_questions": [],
@@ -242,6 +242,70 @@
       "honesty_conditions": [],
       "hard_questions": [],
       "links": []
+    },
+    {
+      "id": "c17",
+      "kind": "requirement",
+      "text": "Meaning is also measured as a trajectory: given an ordered series of measurement points (versions of an artifact), compute first differences (f' \u2014 velocity of change) and second differences (f'' \u2014 acceleration, the change of the change) between consecutive points.",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h14",
+          "text": "On a 3+ point fixture series, trend emits f' for every consecutive pair and f'' for every consecutive f' pair; with exactly 2 points it emits f' only and marks f'' unavailable instead of erroring.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c18",
+      "kind": "requirement",
+      "text": "Two trajectory signals per step: (a) score derivatives \u2014 f'/f'' of meaning_score and of each subdimension score; (b) embedding drift \u2014 cosine distance moved in embedding space between consecutive points, with its own f' and f'' \u2014 so a rewrite series shows both where meaning went and how fast the artifact itself is moving.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h15",
+          "text": "Both signals appear per step in trend JSON \u2014 score deltas (meaning_score + every subdimension) and embedding-drift distance \u2014 each with its own velocity and acceleration series, computed from the same one-embed-call-per-point vectors used for scoring.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c19",
+      "kind": "requirement",
+      "text": "New verb 'coherence meaning trend <f1> <f2> <f3> [...]' takes an ordered series (2+ points for f', 3+ for f''); 'compare' stays the 2-point special case; JSON output lists per-step deltas plus per-signal velocity/acceleration series.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h16",
+          "text": "compare and trend agree on the same two files (identical deltas); trend with fewer than 2 inputs is a user-input error with a hint.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c20",
+      "kind": "boundary",
+      "text": "This spec covers issue #4 phases 1-2 (score + compare) plus the trend/trajectory extension (f'/f'' over measurement-point series \u2014 beyond issue #4's text). Still excluded: separate meaning-cli, LLM judge, experiment runner execution, doctor/certify integration, pluggable embedding providers \u2014 tracked follow-ups, not silent scope.",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h17",
+          "text": "No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
     }
   ],
   "open_vagueness": [
@@ -284,6 +348,18 @@
     {
       "id": "v7",
       "text": "Culture.dev routing policy output (route_to / memory_candidate recommendations) \u2014 depends on validated scores.",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v8",
+      "text": "Derivative denominator: MVP uses per-step differences (unitless, ordered series); time-normalized derivatives (divide by delta-t from git dates or mtimes) revisit when git-history sampling lands.",
+      "kind": "unknown_nonblocking",
+      "claim_id": null
+    },
+    {
+      "id": "v9",
+      "text": "Git-history sampling as measurement-point source ('coherence meaning trend --git <path>' walking commits) \u2014 natural follow-up once explicit file series works.",
       "kind": "follow_up",
       "claim_id": null
     }

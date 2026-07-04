@@ -27,6 +27,12 @@
   - honesty: All 5 subdimensions appear in the score JSON with values in [0,1], and compare emits a signed delta per subdimension; adding a 6th subdimension later requires no schema change for existing consumers.
 - An example experiment config (issue-priority YAML, per issue #4 phase 3 shape) ships under examples/ as a committed artifact so the falsifiability path is visible — but the runner itself is out of scope.
   - honesty: The example experiment YAML parses against the documented config shape and is referenced from the README; no code path executes it.
+- Meaning is also measured as a trajectory: given an ordered series of measurement points (versions of an artifact), compute first differences (f' — velocity of change) and second differences (f'' — acceleration, the change of the change) between consecutive points.
+  - honesty: On a 3+ point fixture series, trend emits f' for every consecutive pair and f'' for every consecutive f' pair; with exactly 2 points it emits f' only and marks f'' unavailable instead of erroring.
+- Two trajectory signals per step: (a) score derivatives — f'/f'' of meaning_score and of each subdimension score; (b) embedding drift — cosine distance moved in embedding space between consecutive points, with its own f' and f'' — so a rewrite series shows both where meaning went and how fast the artifact itself is moving.
+  - honesty: Both signals appear per step in trend JSON — score deltas (meaning_score + every subdimension) and embedding-drift distance — each with its own velocity and acceleration series, computed from the same one-embed-call-per-point vectors used for scoring.
+- New verb 'coherence meaning trend <f1> <f2> <f3> [...]' takes an ordered series (2+ points for f', 3+ for f''); 'compare' stays the 2-point special case; JSON output lists per-step deltas plus per-signal velocity/acceleration series.
+  - honesty: compare and trend agree on the same two files (identical deltas); trend with fewer than 2 inputs is a user-input error with a hint.
 
 ## Honesty conditions
 
@@ -35,8 +41,8 @@
 - Before this lands the repo has no 'meaning' noun and no scoring code — verifiable against the scaffold at the spec's base commit.
 - Running both commands on the shipped fixtures reproduces the documented JSON shape exactly, validated in tests.
 - Every meaning feature the phase-3 experiment YAML names is emitted by 'coherence meaning score' — the MVP output is a sufficient input for the deferred experiment.
-- No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope.
 - CI runs the fixture-ordering and diagnostic tests; a failing high/low ordering fails the build.
+- No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope.
 
 ## Success signals
 
@@ -44,7 +50,7 @@
 
 ## Scope / boundaries
 
-- This spec covers issue #4 phases 1-2 only (score + compare). No separate meaning-cli, no LLM judge, no experiment runner execution, no doctor/certify integration, no pluggable embedding providers — those are tracked follow-ups, not silent scope.
+- This spec covers issue #4 phases 1-2 (score + compare) plus the trend/trajectory extension (f'/f'' over measurement-point series — beyond issue #4's text). Still excluded: separate meaning-cli, LLM judge, experiment runner execution, doctor/certify integration, pluggable embedding providers — tracked follow-ups, not silent scope.
 
 ## Non-goals
 
@@ -64,3 +70,4 @@
 - Phases 4-5: 'coherence doctor --dimension meaning' and 'coherence certify --dimension meaning' — integrate once scoring is trusted.
 - LLM-judge fallback and pluggable embedding providers (issue #4 stretch tier).
 - Culture.dev routing policy output (route_to / memory_candidate recommendations) — depends on validated scores.
+- Git-history sampling as measurement-point source ('coherence meaning trend --git <path>' walking commits) — natural follow-up once explicit file series works.
