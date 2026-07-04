@@ -30,6 +30,8 @@ _VERBS = [
     "explain <path> — markdown docs for a topic",
     "overview — this descriptive snapshot",
     "doctor — check the agent-identity invariants",
+    "meaning <file> — score/compare/trend an artifact's meaning gradient "
+    "(see 'coherence meaning')",
 ]
 
 

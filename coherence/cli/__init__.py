@@ -66,6 +66,7 @@ def _build_parser() -> argparse.ArgumentParser:
     from coherence.cli._commands import doctor as _doctor_cmd
     from coherence.cli._commands import explain as _explain_cmd
     from coherence.cli._commands import learn as _learn_cmd
+    from coherence.cli._commands import meaning as _meaning_cmd
     from coherence.cli._commands import overview as _overview_cmd
     from coherence.cli._commands import whoami as _whoami_cmd
 
@@ -88,6 +89,7 @@ def _build_parser() -> argparse.ArgumentParser:
     _overview_cmd.register(sub)
     _doctor_cmd.register(sub)
     _cli_group.register(sub)
+    _meaning_cmd.register(sub)
     # Register your own noun groups here:
     #   from coherence.cli._commands import my_noun as _my_noun_group
     #   _my_noun_group.register(sub)
