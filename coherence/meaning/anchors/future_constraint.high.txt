@@ -1,0 +1,5 @@
+After this migration, all writes must go through the new schema; the old column is dropped Monday.
+From v2 onward, every endpoint requires an auth token and unauthenticated calls will 401.
+Once we merge this, the config format is frozen and older config files stop loading.
+Starting next sprint, no PR merges without a passing coverage gate.
+After the cutover, the legacy API is read-only and shuts down in 30 days.
