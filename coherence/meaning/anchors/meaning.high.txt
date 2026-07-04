@@ -1,0 +1,6 @@
+If we ship this unpatched, an attacker exfiltrates the user table and we breach GDPR, so the on-call engineer must roll back before 09:00.
+The cache-miss storm caused the database to fall over and triggered the outage; run `make rollback` now to restore the previous release.
+After this migration every write must go through the new schema, and the old column is dropped Monday, so update your queries before then.
+The payment webhook is dropping 3% of events because retries are disabled; enable them in config.yaml today or we lose revenue this quarter.
+Merging this without the feature flag exposes unfinished billing code to every customer, so gate it behind `billing_v2` before you deploy.
+The token-refresh loop leaks memory under load and will OOM the pod during Friday's launch unless we cap the cache size now.

@@ -116,6 +116,123 @@ itself (distinct from the global `overview`, which describes the agent).
 """
 
 
+_MEANING = """\
+# coherence meaning
+
+Noun group for the Meaning Gradient engine: it measures how much *meaning* a text
+artifact carries — a global `meaning_score` in `[0, 1]` plus five subdimensions
+(consequence, agency, causality, affordance, future_constraint) — and how that
+meaning moves between versions. Bare `coherence meaning` prints this overview.
+
+## Verbs
+
+- `coherence meaning score <file>` — score one artifact.
+- `coherence meaning compare <before> <after>` — signed before/after delta.
+- `coherence meaning trend <f1> <f2> [<f3> ...]` — per-step f'/f'' across a series.
+
+## Usage
+
+    coherence meaning
+    coherence meaning --json
+
+## Exit codes
+
+- `0` success
+- `1` user error (bad artifact path; `trend` given fewer than 2 files)
+- `2` environment error (the embedding endpoint is unreachable)
+
+## See also
+
+- `coherence explain meaning score`
+- `coherence explain meaning compare`
+- `coherence explain meaning trend`
+"""
+
+_MEANING_SCORE = """\
+# coherence meaning score <file>
+
+Scores a single artifact's Meaning Gradient. Embeds the artifact once and
+projects it onto the global meaning axis plus each subdimension axis, then runs
+the always-available offline diagnostics.
+
+## Usage
+
+    coherence meaning score path/to/artifact.md
+    coherence meaning score path/to/artifact.md --json
+
+## JSON shape
+
+    {"meaning_score": <float 0..1>,
+     "subdimensions": {"consequence": <float>, "agency": <float>,
+                       "causality": <float>, "affordance": <float>,
+                       "future_constraint": <float>},
+     "diagnostics": [{"code": <str>, "message": <str>}, ...]}
+
+## Exit codes
+
+- `0` success
+- `1` file not found (bad artifact path)
+- `2` embedding endpoint unreachable
+"""
+
+_MEANING_COMPARE = """\
+# coherence meaning compare <before> <after>
+
+Scores two artifact versions and reports the signed `after - before` delta for
+the global `meaning_score` and every subdimension (a positive delta means the
+`after` artifact gained meaning on that dimension). Comparing a file with itself
+yields all-zero deltas.
+
+## Usage
+
+    coherence meaning compare old.md new.md
+    coherence meaning compare old.md new.md --json
+
+## JSON shape
+
+    {"before": <score(before) dict>,
+     "after":  <score(after) dict>,
+     "delta":  {"meaning_score": <float>,
+                "subdimensions": {"consequence": <float>, ...}}}
+
+## Exit codes
+
+- `0` success
+- `1` file not found (either artifact path is bad)
+- `2` embedding endpoint unreachable
+"""
+
+_MEANING_TREND = """\
+# coherence meaning trend <f1> <f2> [<f3> ...]
+
+Takes an *ordered* series of two or more artifact versions and reports how
+meaning moves across it: per-step first differences (f', velocity) and, once
+there are at least three points, second differences (f'', acceleration) — for
+the global `meaning_score`, each subdimension, and embedding drift. Order is
+significant; differences are taken between consecutive entries.
+
+## Usage
+
+    coherence meaning trend v1.md v2.md v3.md
+    coherence meaning trend v1.md v2.md --json
+
+## JSON shape
+
+    {"n": <int>, "paths": [...], "points": [...],
+     "per_step_drift": [<float>, ...],
+     "signals": {"meaning_score": {"first": {"values": [...], "reason": null},
+                                   "second": {"values": [...]|null, "reason": ...}},
+                 "consequence": {...}, ..., "drift": {...}},
+     "second_difference_available": <bool>}
+
+## Exit codes
+
+- `0` success
+- `1` fewer than 2 files supplied, or a file was not found
+- `2` embedding endpoint unreachable
+"""
+
+
 ENTRIES: dict[tuple[str, ...], str] = {
     (): _ROOT,
     ("coherence-cli",): _ROOT,
@@ -127,4 +244,8 @@ ENTRIES: dict[tuple[str, ...], str] = {
     ("doctor",): _DOCTOR,
     ("cli",): _CLI,
     ("cli", "overview"): _CLI,
+    ("meaning",): _MEANING,
+    ("meaning", "score"): _MEANING_SCORE,
+    ("meaning", "compare"): _MEANING_COMPARE,
+    ("meaning", "trend"): _MEANING_TREND,
 }

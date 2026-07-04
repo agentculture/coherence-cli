@@ -1,0 +1,5 @@
+If we ship this unpatched, an attacker exfiltrates the user table and we breach GDPR.
+Skipping the nightly backup means a single disk failure loses every customer invoice permanently.
+Deploying without the migration corrupts every order placed after midnight.
+Missing this deadline forfeits the contract and triggers a two-million-dollar penalty.
+Leaving this port open lets anyone on the internet read production secrets.

@@ -29,6 +29,9 @@ Commands
   coherence-cli overview           Descriptive snapshot of the agent.
   coherence-cli doctor             Check the agent-identity invariants.
   coherence-cli cli overview       Describe the CLI surface itself.
+  coherence meaning score <file>   Score an artifact's meaning gradient.
+  coherence meaning compare <a> <b>  Signed before/after meaning delta.
+  coherence meaning trend <f>...   Per-step f'/f'' across a series.
 
 Machine-readable output
 -----------------------
@@ -60,6 +63,9 @@ def _as_json_payload() -> dict[str, object]:
             {"path": ["overview"], "summary": "Descriptive snapshot of the agent."},
             {"path": ["doctor"], "summary": "Check the agent-identity invariants."},
             {"path": ["cli", "overview"], "summary": "Describe the CLI surface."},
+            {"path": ["meaning", "score"], "summary": "Score an artifact's meaning gradient."},
+            {"path": ["meaning", "compare"], "summary": "Signed before/after meaning delta."},
+            {"path": ["meaning", "trend"], "summary": "Per-step f'/f'' across a series."},
         ],
         "exit_codes": {
             "0": "success",

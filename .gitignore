@@ -231,3 +231,8 @@ skills.local.yaml
 
 # devague working state (not committed by default)
 .devague/reviews/
+
+# Recorded embedding vectors for the offline meaning tests ARE committed (see
+# tests/fixtures/meaning/recorded_vectors.json) so the falsifiability ordering
+# test runs in CI with zero network. Regenerate against a live embed gear with
+# scripts/refresh_meaning_vectors.py after changing anchors or fixtures.

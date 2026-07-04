@@ -1,0 +1,5 @@
+The on-call engineer must roll back the deploy before 09:00.
+Maria owns the migration and will run it Thursday night.
+You need to revoke the leaked API key immediately.
+The release manager approves the hotfix; no one else can sign off.
+Assign this to the platform team so they patch it today.

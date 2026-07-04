@@ -1,0 +1,5 @@
+The cache-miss storm caused the DB to fall over, which triggered the outage.
+Because the index was dropped, queries did full table scans and latency spiked.
+The retry loop hammered the upstream API, so rate limits kicked in and requests started failing.
+A null pointer in the parser crashed the worker, which halted the whole pipeline.
+Disabling gzip doubled the payload size, which slowed every page load.

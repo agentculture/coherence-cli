@@ -16,6 +16,9 @@ config:
 
 ignores:
   - "node_modules/**"
+  # The virtualenv holds third-party package LICENSE.md files (numpy, httpx, …)
+  # that trip markdownlint; it is created by `uv sync` in CI. Never our source.
+  - ".venv/**"
   - ".local/**"
   - ".afi/**"
   - ".teken/**"
