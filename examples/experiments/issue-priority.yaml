@@ -1,0 +1,91 @@
+# ============================================================================
+# Meaning Gradient — phase-3 experiment config (DEFERRED · NOT EXECUTED)
+# ----------------------------------------------------------------------------
+# NO RUNNER EXECUTES THIS FILE. There is no `coherence meaning experiment`
+# code path in this MVP. This YAML is the *config contract* for a deferred
+# phase-3 experiment (issue #4): it pins the shape a future runner will read,
+# and documents that every `features.meaning` field below is already emitted
+# by `coherence meaning score <file> --json` today — so the falsifiability
+# path is visible and version-controlled before the runner exists. Editing
+# this file changes only the intended contract, never any behaviour. See the
+# "Meaning Gradient" section of README.md (Scope boundary) for follow-ups.
+# ============================================================================
+
+name: issue-priority-meaning-gradient
+artifact_type: github_issue
+
+# Research question (issue #4):
+#   Can the Meaning Gradient predict GitHub-issue priority and agent-routing
+#   correctness better than declared severity, length, and generic embedding
+#   similarity?
+
+# --- ratings ---------------------------------------------------------------
+# Human meaning ratings, one row per (issue, rater): the issue id plus that
+# rater's score. This is the human ground truth the features are correlated
+# against. (Illustrative rows — the real dataset is 100-300 issues.)
+ratings:
+  - id: coherence-cli#4
+    rater: alice
+    human_meaning_score: 0.86
+  - id: coherence-cli#4
+    rater: bob
+    human_meaning_score: 0.79
+  - id: steward#118
+    rater: alice
+    human_meaning_score: 0.34
+  - id: steward#118
+    rater: bob
+    human_meaning_score: 0.41
+
+# --- outcomes --------------------------------------------------------------
+# What actually happened to each issue — the behavioural labels the experiment
+# tries to predict, one row per issue.
+outcomes:
+  - id: coherence-cli#4
+    agent_routing_correct: true
+    selected_for_execution: true
+    recall_24h: true
+  - id: steward#118
+    agent_routing_correct: false
+    selected_for_execution: false
+    recall_24h: false
+
+# --- features --------------------------------------------------------------
+# The columns fed into each model. The `meaning` group uses the EXACT field
+# names that `coherence meaning score <file> --json` emits today: the scalar
+# `meaning_score`, the five subdimensions, and the `diagnostics` list — so a
+# future runner reads them straight off the score JSON with no translation.
+# (`baseline` and `semantic` are the comparison models issue #4 asks us to
+# beat; they are computed elsewhere, not by `coherence meaning score`.)
+features:
+  baseline:
+    - length
+    - sentiment
+    - declared_severity
+    - reading_difficulty
+  semantic:
+    - embedding_vector
+    - embedding_similarity
+  meaning:
+    - meaning_score
+    - consequence
+    - agency
+    - causality
+    - affordance
+    - future_constraint
+    - diagnostics
+
+# --- metrics ---------------------------------------------------------------
+# How the meaning features are scored — correlation of features vs outcomes,
+# and rank correlation of features vs the human ratings above.
+metrics:
+  - name: pearson            # linear correlation, feature vs outcome
+    against: outcomes
+  - name: spearman           # rank correlation, feature vs human rating
+    against: ratings
+  - name: r2                 # explained variance
+    against: outcomes
+  - name: auc                # routing-correctness classification
+    against: outcomes
+  - name: cross_validation   # out-of-sample validity
+    against: outcomes
