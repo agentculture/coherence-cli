@@ -50,6 +50,12 @@ ANCHORS_DIR: Path = Path(__file__).resolve().parent / "anchors"
 # high- nor low-meaning, the same value an orthogonal vector would score.
 NEUTRAL_SCORE: float = 0.5
 
+# A vector whose L2 norm is at or below this is treated as effectively zero:
+# its direction is undefined and dividing by it is numerically unstable. Using a
+# small epsilon (rather than an exact ``== 0.0`` check) also guards near-zero
+# vectors, and avoids fragile floating-point equality.
+_ZERO_NORM_EPS: float = 1e-12
+
 
 def build_axis(high_vecs: ArrayLike, low_vecs: ArrayLike) -> NDArray[np.float64]:
     """Return the meaning axis ``mean(high_vecs) - mean(low_vecs)``.
@@ -86,7 +92,7 @@ def project(vec: ArrayLike, axis: ArrayLike) -> float:
     a = np.asarray(axis, dtype=np.float64)
     v_norm = float(np.linalg.norm(v))
     a_norm = float(np.linalg.norm(a))
-    if v_norm == 0.0 or a_norm == 0.0:
+    if v_norm <= _ZERO_NORM_EPS or a_norm <= _ZERO_NORM_EPS:
         return NEUTRAL_SCORE
     cos = float(np.dot(v, a) / (v_norm * a_norm))
     # Clamp tiny floating-point excursions outside [-1, 1] before rescaling.

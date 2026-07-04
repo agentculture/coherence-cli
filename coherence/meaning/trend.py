@@ -112,6 +112,11 @@ from coherence.meaning.score import EmbedFn, measure
 # rather than into the per-point ``subdimensions`` map (mirrors ``score``).
 _GLOBAL_DIMENSION = "meaning"
 
+# A vector whose L2 norm is at or below this is treated as effectively zero (its
+# direction is undefined). A small epsilon guards near-zero vectors too and
+# avoids fragile floating-point equality against ``0.0``.
+_ZERO_NORM_EPS = 1e-12
+
 
 def _second_unavailable_reason(n: int) -> str:
     """Return the reason string used when a second difference cannot be formed."""
@@ -143,7 +148,7 @@ def _cosine_distance(u: ArrayLike, v: ArrayLike) -> float:
     b = np.asarray(v, dtype=np.float64)
     a_norm = float(np.linalg.norm(a))
     b_norm = float(np.linalg.norm(b))
-    if a_norm == 0.0 or b_norm == 0.0:
+    if a_norm <= _ZERO_NORM_EPS or b_norm <= _ZERO_NORM_EPS:
         return 0.0
     cos = float(np.dot(a, b) / (a_norm * b_norm))
     # Clamp tiny floating-point excursions outside [-1, 1] before the distance.
