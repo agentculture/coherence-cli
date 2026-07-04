@@ -1,0 +1,1 @@
+There is something about the auth middleware and the request headers. We changed how it works a little bit. It might be a bit better now, hopefully. Someone could maybe look at the login and authentication stuff at some point later. Things around that area were touched.

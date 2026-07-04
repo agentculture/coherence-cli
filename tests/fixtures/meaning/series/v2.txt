@@ -1,0 +1,1 @@
+Repeated failed logins are hitting the auth service pretty hard and slowing it down. We want to add a rate limit so that brute-force attempts are throttled instead of running unchecked. Someone on the platform side should configure a sensible per-user threshold soon.
