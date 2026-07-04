@@ -22,10 +22,7 @@ yaml = pytest.importorskip("yaml")
 from coherence.meaning.axis import DIMENSIONS  # noqa: E402  (after importorskip)
 
 _CONFIG_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "examples"
-    / "experiments"
-    / "issue-priority.yaml"
+    Path(__file__).resolve().parent.parent / "examples" / "experiments" / "issue-priority.yaml"
 )
 
 # The exact top-level field names `coherence meaning score` emits, derived from
