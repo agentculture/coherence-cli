@@ -1,0 +1,382 @@
+{
+  "slug": "coherence-cli-ships-meaning-gradient-as-a-measurab",
+  "title": "coherence-cli ships Meaning Gradient as a measurable coherence dimension: 'coherence meaning score <file>' returns a scalar meaning score plus per-subdimension scores and rule-based diagnostics as JSON, and 'coherence meaning compare <before> <after>' shows whether a rewrite gained or lost meaning \u2014 with the anchor sets shipped in-repo so the whole claim stays falsifiable.",
+  "frame_slug": "coherence-cli-ships-meaning-gradient-as-a-measurab",
+  "schema_version": 1,
+  "status": "exported",
+  "created": "2026-07-04T07:22:33Z",
+  "updated": "2026-07-04T07:26:57Z",
+  "targets": [
+    {
+      "id": "c1",
+      "kind": "announcement",
+      "text": "coherence-cli ships Meaning Gradient as a measurable coherence dimension: 'coherence meaning score <file>' returns a scalar meaning score plus per-subdimension scores and rule-based diagnostics as JSON, and 'coherence meaning compare <before> <after>' shows whether a rewrite gained or lost meaning \u2014 with the anchor sets shipped in-repo so the whole claim stays falsifiable."
+    },
+    {
+      "id": "h6",
+      "kind": "honesty",
+      "text": "Both commands exist and emit valid JSON matching the documented schema; the README states Meaning Gradient is a coherence dimension of coherence-cli, not a separate tool; issue #4's minimum-tier acceptance boxes are all checkable."
+    },
+    {
+      "id": "c2",
+      "kind": "audience",
+      "text": "Agents and operators in the AgentCulture mesh that route, remember, compress, or gate artifacts (steward, eidetic, taskmaster, colleague) \u2014 plus humans triaging issues and reviewing rewrites."
+    },
+    {
+      "id": "h8",
+      "kind": "honesty",
+      "text": "At least one named mesh consumer can act on the score JSON without human translation \u2014 schema fields map directly to a routing or memory decision."
+    },
+    {
+      "id": "c3",
+      "kind": "before_state",
+      "text": "coherence-cli is a bare scaffold (whoami/learn/explain/doctor only, zero runtime deps); meaning of artifacts is judged by vibes \u2014 no measurable signal, no way to test whether a rewrite added meaning, no instrumentation to falsify the Meaning Gradient thesis."
+    },
+    {
+      "id": "h9",
+      "kind": "honesty",
+      "text": "Before this lands the repo has no 'meaning' noun and no scoring code \u2014 verifiable against the scaffold at the spec's base commit."
+    },
+    {
+      "id": "c4",
+      "kind": "after_state",
+      "text": "'coherence meaning score <file>' emits JSON with meaning_score, at least 4 subdimension scores, and rule-based diagnostics (missing_consequence / missing_owner / missing_next_action); 'coherence meaning compare before after' emits per-subdimension deltas; anchor sets live in-repo as editable fixtures."
+    },
+    {
+      "id": "h10",
+      "kind": "honesty",
+      "text": "Running both commands on the shipped fixtures reproduces the documented JSON shape exactly, validated in tests."
+    },
+    {
+      "id": "c5",
+      "kind": "why_it_matters",
+      "text": "Routing, memory, compression, and certification policies need a signal that predicts what humans and agents remember, prioritize, and execute \u2014 and the claim must stay empirical: instrumentation first, so the phase-3 experiment can prove or disprove predictive value."
+    },
+    {
+      "id": "h11",
+      "kind": "honesty",
+      "text": "Every meaning feature the phase-3 experiment YAML names is emitted by 'coherence meaning score' \u2014 the MVP output is a sufficient input for the deferred experiment."
+    },
+    {
+      "id": "c7",
+      "kind": "success_signal",
+      "text": "On repo fixtures, score orders each high-meaning rewrite above its low-meaning original (e.g. the issue's auth-middleware pair); the JSON contract and each diagnostic rule are exercised by tests; README documents Meaning Gradient as a coherence dimension."
+    },
+    {
+      "id": "h13",
+      "kind": "honesty",
+      "text": "CI runs the fixture-ordering and diagnostic tests; a failing high/low ordering fails the build."
+    },
+    {
+      "id": "c8",
+      "kind": "requirement",
+      "text": "Scoring uses anchor-axis projection: embed the artifact, build meaning_axis = mean(high-anchor embeddings) - mean(low-anchor embeddings), score = cosine(artifact, axis) normalized to [0,1]; each subdimension gets its own high/low anchor pair set."
+    },
+    {
+      "id": "h1",
+      "kind": "honesty",
+      "text": "Scoring is deterministic for a fixed anchor set + embedding endpoint, and on the shipped fixtures every high-meaning artifact scores strictly above its paired low-meaning artifact."
+    },
+    {
+      "id": "c9",
+      "kind": "requirement",
+      "text": "Embeddings come from an OpenAI-compatible /v1/embeddings endpoint configured via env (COHERENCE_EMBED_URL / COHERENCE_EMBED_MODEL, defaulting to the same local embed gear eidetic uses); when unreachable, score exits with the CLI's environment-error code and a clear hint, while rule-based diagnostics still run offline."
+    },
+    {
+      "id": "h7",
+      "kind": "honesty",
+      "text": "With the embed endpoint down, 'coherence meaning score' exits with the environment-error code and an actionable hint, and a diagnostics-only invocation still succeeds offline."
+    },
+    {
+      "id": "c10",
+      "kind": "requirement",
+      "text": "Rule-based diagnostics detect missing_consequence, missing_owner, and missing_next_action without any embedding call, and land in the JSON output as a diagnostics list."
+    },
+    {
+      "id": "h3",
+      "kind": "honesty",
+      "text": "Each diagnostic rule fires on a fixture artifact that lacks the property and stays silent on a fixture that has it \u2014 one positive and one negative test per rule."
+    },
+    {
+      "id": "c11",
+      "kind": "requirement",
+      "text": "MVP ships 5 subdimensions \u2014 consequence, agency, causality, affordance, future_constraint \u2014 chosen from the issue's 'most important for Culture.dev' list; the JSON schema leaves room to add more without breaking consumers."
+    },
+    {
+      "id": "h4",
+      "kind": "honesty",
+      "text": "All 5 subdimensions appear in the score JSON with values in [0,1], and compare emits a signed delta per subdimension; adding a 6th subdimension later requires no schema change for existing consumers."
+    },
+    {
+      "id": "c13",
+      "kind": "requirement",
+      "text": "An example experiment config (issue-priority YAML, per issue #4 phase 3 shape) ships under examples/ as a committed artifact so the falsifiability path is visible \u2014 but the runner itself is out of scope."
+    },
+    {
+      "id": "h5",
+      "kind": "honesty",
+      "text": "The example experiment YAML parses against the documented config shape and is referenced from the README; no code path executes it."
+    },
+    {
+      "id": "c17",
+      "kind": "requirement",
+      "text": "Meaning is also measured as a trajectory: given an ordered series of measurement points (versions of an artifact), compute first differences (f' \u2014 velocity of change) and second differences (f'' \u2014 acceleration, the change of the change) between consecutive points."
+    },
+    {
+      "id": "h14",
+      "kind": "honesty",
+      "text": "On a 3+ point fixture series, trend emits f' for every consecutive pair and f'' for every consecutive f' pair; with exactly 2 points it emits f' only and marks f'' unavailable instead of erroring."
+    },
+    {
+      "id": "c18",
+      "kind": "requirement",
+      "text": "Two trajectory signals per step: (a) score derivatives \u2014 f'/f'' of meaning_score and of each subdimension score; (b) embedding drift \u2014 cosine distance moved in embedding space between consecutive points, with its own f' and f'' \u2014 so a rewrite series shows both where meaning went and how fast the artifact itself is moving."
+    },
+    {
+      "id": "h15",
+      "kind": "honesty",
+      "text": "Both signals appear per step in trend JSON \u2014 score deltas (meaning_score + every subdimension) and embedding-drift distance \u2014 each with its own velocity and acceleration series, computed from the same one-embed-call-per-point vectors used for scoring."
+    },
+    {
+      "id": "c19",
+      "kind": "requirement",
+      "text": "New verb 'coherence meaning trend <f1> <f2> <f3> [...]' takes an ordered series (2+ points for f', 3+ for f''); 'compare' stays the 2-point special case; JSON output lists per-step deltas plus per-signal velocity/acceleration series."
+    },
+    {
+      "id": "h16",
+      "kind": "honesty",
+      "text": "compare and trend agree on the same two files (identical deltas); trend with fewer than 2 inputs is a user-input error with a hint."
+    },
+    {
+      "id": "c20",
+      "kind": "boundary",
+      "text": "This spec covers issue #4 phases 1-2 (score + compare) plus the trend/trajectory extension (f'/f'' over measurement-point series \u2014 beyond issue #4's text). Still excluded: separate meaning-cli, LLM judge, experiment runner execution, doctor/certify integration, pluggable embedding providers \u2014 tracked follow-ups, not silent scope."
+    },
+    {
+      "id": "h17",
+      "kind": "honesty",
+      "text": "No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "summary": "Meaning package scaffold + first runtime deps (pyproject.toml, coherence/meaning/__init__.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "pyproject.toml declares numpy and httpx as runtime dependencies; uv sync installs cleanly on Python 3.12",
+        "coherence/meaning/__init__.py exists and exports the shared error type EmbedUnavailable",
+        "baseline recorded: at the plan's base commit no coherence/meaning/ path and no meaning CLI noun exist (asserted in the task's PR note)"
+      ],
+      "deps": [],
+      "covers": [
+        "c3",
+        "h9"
+      ]
+    },
+    {
+      "id": "t2",
+      "summary": "Embedding client: env-configured OpenAI-compatible /v1/embeddings via httpx (coherence/meaning/embed.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "embed_texts(texts) POSTs to COHERENCE_EMBED_URL /embeddings with COHERENCE_EMBED_MODEL and returns one vector per input, unit-tested against a mocked httpx transport",
+        "connection failure or timeout raises EmbedUnavailable with an actionable hint naming the env vars; the CLI layer maps it to the environment-error exit code 2",
+        "defaults match eidetic's embed gear (http://localhost:8002/v1, Qwen/Qwen3-Embedding-0.6B), overridable via env"
+      ],
+      "deps": [
+        "t1"
+      ],
+      "covers": [
+        "c9",
+        "h7"
+      ]
+    },
+    {
+      "id": "t3",
+      "summary": "Anchor fixtures + axis builder (coherence/meaning/axis.py, coherence/meaning/anchors/*.txt)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "anchor files exist for the global meaning axis plus 5 subdimensions (consequence, agency, causality, affordance, future_constraint), high and low sets seeded from issue #4's anchor lists",
+        "build_axis = mean(high vectors) - mean(low vectors); project(vec, axis) returns cosine rescaled to [0,1]; unit-tested with synthetic vectors (parallel to 1.0, orthogonal to 0.5, anti-parallel to 0.0)",
+        "axis construction and projection are deterministic: identical anchors and vectors yield identical scores"
+      ],
+      "deps": [
+        "t1"
+      ],
+      "covers": [
+        "c8"
+      ]
+    },
+    {
+      "id": "t4",
+      "summary": "Rule-based diagnostics, fully offline (coherence/meaning/diagnostics.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "missing_consequence, missing_owner, missing_next_action rules run with zero network I/O",
+        "each rule has one positive fixture test (fires on an artifact lacking the property) and one negative fixture test (silent on an artifact having it)",
+        "diagnostics(text) returns a JSON-serializable list of {code, message} entries"
+      ],
+      "deps": [
+        "t1"
+      ],
+      "covers": [
+        "c10",
+        "h3"
+      ]
+    },
+    {
+      "id": "t5",
+      "summary": "Score engine + JSON contract (coherence/meaning/score.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "score(path) returns {meaning_score, subdimensions: {consequence, agency, causality, affordance, future_constraint}, diagnostics: [...]} with every value in [0,1]",
+        "one embed call for the artifact plus one batch for anchors per run \u2014 no per-subdimension re-embedding of the artifact",
+        "adding a 6th subdimension means adding anchor files plus one registry entry; subdimensions is an open map so existing consumers need no schema change",
+        "with the embed endpoint down, score raises EmbedUnavailable while a diagnostics-only invocation still succeeds offline"
+      ],
+      "deps": [
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "covers": [
+        "c11",
+        "h4"
+      ]
+    },
+    {
+      "id": "t6",
+      "summary": "Compare engine: 2-point deltas (coherence/meaning/compare.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "compare(before, after) returns {before, after, delta} where delta carries a signed per-subdimension and meaning_score difference",
+        "compare of a file against itself yields all-zero deltas",
+        "output schema is unit-tested with synthetic vectors (no live endpoint needed)"
+      ],
+      "deps": [
+        "t5"
+      ],
+      "covers": [
+        "c4",
+        "h4"
+      ]
+    },
+    {
+      "id": "t7",
+      "summary": "Trend engine: f-prime / f-double-prime over measurement points (coherence/meaning/trend.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "trend(paths) with n>=2 emits per-step first differences for meaning_score, each subdimension, and embedding drift (cosine distance between consecutive artifact embeddings)",
+        "n>=3 additionally emits second differences per signal; n==2 marks them unavailable (null with reason) instead of erroring",
+        "differences are per-step and unitless; series are index-aligned: len(first)==n-1, len(second)==n-2",
+        "trend on exactly 2 points produces deltas identical to compare on the same files"
+      ],
+      "deps": [
+        "t2",
+        "t5"
+      ],
+      "covers": [
+        "c17",
+        "h14",
+        "c18",
+        "h15"
+      ]
+    },
+    {
+      "id": "t8",
+      "summary": "CLI noun wiring + explain catalog (coherence/cli/_commands/meaning.py, coherence/explain/catalog.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "coherence meaning noun registers score, compare, and trend verbs; all support --json; exit codes follow the 0/1/2 policy",
+        "trend with fewer than 2 inputs and score with a missing file exit 1 with a hint; unreachable embed gear exits 2 with a hint naming COHERENCE_EMBED_URL",
+        "explain catalog gains entries for meaning and each verb; bare 'coherence meaning' prints the noun overview per scaffold convention; learn and cli overview surfaces include the new noun"
+      ],
+      "deps": [
+        "t5",
+        "t6",
+        "t7"
+      ],
+      "covers": [
+        "c1",
+        "c19"
+      ]
+    },
+    {
+      "id": "t9",
+      "summary": "Example experiment config + README (examples/experiments/issue-priority.yaml, README.md)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "examples/experiments/issue-priority.yaml committed, matching issue #4's phase-3 shape (ratings, outcomes, features, metrics sections); no code path executes it",
+        "README gains a Meaning Gradient section: a coherence dimension of coherence-cli (not a separate CLI), the anchor-axis method, the three commands with JSON contract, and a consumer map stating which fields drive routing and memory decisions for steward/eidetic/taskmaster",
+        "README states the scope boundary: experiment runner, LLM judge, doctor/certify integration are tracked follow-ups with no code paths in the MVP"
+      ],
+      "deps": [
+        "t5"
+      ],
+      "covers": [
+        "c13",
+        "h5",
+        "c2",
+        "h8",
+        "c5",
+        "c20",
+        "h17"
+      ]
+    },
+    {
+      "id": "t10",
+      "summary": "Fixtures + offline integration tests wired into CI (tests/fixtures/meaning/, tests/test_meaning_*.py)",
+      "origin": "llm",
+      "status": "confirmed",
+      "acceptance_criteria": [
+        "high/low fixture pairs committed (including issue #4's auth-middleware pair) plus a 3-point rewrite series; real embeddings for fixtures and anchors precomputed once and committed as recorded-vector JSON so tests run offline in CI, with a refresh script to regenerate against a live endpoint",
+        "ordering test: every high-meaning fixture scores strictly above its paired low-meaning fixture using the recorded vectors; a failing ordering fails CI",
+        "schema tests: score, compare, and trend --json outputs validate against the documented schema; compare-vs-trend agreement asserted on the same 2 files",
+        "experiment-feature test: every meaning feature named in examples/experiments/issue-priority.yaml appears in score JSON output",
+        "full suite passes via the run-tests skill with zero network access"
+      ],
+      "deps": [
+        "t8",
+        "t9"
+      ],
+      "covers": [
+        "c7",
+        "h13",
+        "h1",
+        "h10",
+        "h6",
+        "h16",
+        "h11"
+      ]
+    }
+  ],
+  "risks": [
+    {
+      "id": "r1",
+      "text": "CI has no live embed gear: integration tests rely on committed recorded-vector fixtures; changing anchors without refreshing them silently tests stale axes \u2014 refresh script plus a checksum guard mitigate",
+      "kind": "unknown_nonblocking",
+      "task_id": "t10"
+    },
+    {
+      "id": "r2",
+      "text": "Recorded vectors are tied to the embedding model version; upgrading the embed gear model invalidates them (regenerate via the refresh script)",
+      "kind": "unknown_nonblocking",
+      "task_id": "t10"
+    },
+    {
+      "id": "r3",
+      "text": "Anchor quality is unvalidated until real scores are observed; fixture ordering may require anchor tuning \u2014 a data change, not a code change",
+      "kind": "unknown_nonblocking",
+      "task_id": "t3"
+    }
+  ]
+}
