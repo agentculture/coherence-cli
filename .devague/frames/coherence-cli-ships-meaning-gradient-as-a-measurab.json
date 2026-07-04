@@ -1,0 +1,291 @@
+{
+  "slug": "coherence-cli-ships-meaning-gradient-as-a-measurab",
+  "title": "coherence-cli ships Meaning Gradient as a measurable coherence dimension: 'coherence meaning score <file>' returns a scalar meaning score plus per-subdimension scores and rule-based diagnostics as JSON, and 'coherence meaning compare <before> <after>' shows whether a rewrite gained or lost meaning \u2014 with the anchor sets shipped in-repo so the whole claim stays falsifiable.",
+  "schema_version": 1,
+  "status": "exported",
+  "created": "2026-07-04T07:08:00Z",
+  "updated": "2026-07-04T07:16:22Z",
+  "claims": [
+    {
+      "id": "c1",
+      "kind": "announcement",
+      "text": "coherence-cli ships Meaning Gradient as a measurable coherence dimension: 'coherence meaning score <file>' returns a scalar meaning score plus per-subdimension scores and rule-based diagnostics as JSON, and 'coherence meaning compare <before> <after>' shows whether a rewrite gained or lost meaning \u2014 with the anchor sets shipped in-repo so the whole claim stays falsifiable.",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h6",
+          "text": "Both commands exist and emit valid JSON matching the documented schema; the README states Meaning Gradient is a coherence dimension of coherence-cli, not a separate tool; issue #4's minimum-tier acceptance boxes are all checkable.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c2",
+      "kind": "audience",
+      "text": "Agents and operators in the AgentCulture mesh that route, remember, compress, or gate artifacts (steward, eidetic, taskmaster, colleague) \u2014 plus humans triaging issues and reviewing rewrites.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h8",
+          "text": "At least one named mesh consumer can act on the score JSON without human translation \u2014 schema fields map directly to a routing or memory decision.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c3",
+      "kind": "before_state",
+      "text": "coherence-cli is a bare scaffold (whoami/learn/explain/doctor only, zero runtime deps); meaning of artifacts is judged by vibes \u2014 no measurable signal, no way to test whether a rewrite added meaning, no instrumentation to falsify the Meaning Gradient thesis.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h9",
+          "text": "Before this lands the repo has no 'meaning' noun and no scoring code \u2014 verifiable against the scaffold at the spec's base commit.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c4",
+      "kind": "after_state",
+      "text": "'coherence meaning score <file>' emits JSON with meaning_score, at least 4 subdimension scores, and rule-based diagnostics (missing_consequence / missing_owner / missing_next_action); 'coherence meaning compare before after' emits per-subdimension deltas; anchor sets live in-repo as editable fixtures.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h10",
+          "text": "Running both commands on the shipped fixtures reproduces the documented JSON shape exactly, validated in tests.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c5",
+      "kind": "why_it_matters",
+      "text": "Routing, memory, compression, and certification policies need a signal that predicts what humans and agents remember, prioritize, and execute \u2014 and the claim must stay empirical: instrumentation first, so the phase-3 experiment can prove or disprove predictive value.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h11",
+          "text": "Every meaning feature the phase-3 experiment YAML names is emitted by 'coherence meaning score' \u2014 the MVP output is a sufficient input for the deferred experiment.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c6",
+      "kind": "boundary",
+      "text": "This spec covers issue #4 phases 1-2 only (score + compare). No separate meaning-cli, no LLM judge, no experiment runner execution, no doctor/certify integration, no pluggable embedding providers \u2014 those are tracked follow-ups, not silent scope.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h12",
+          "text": "No MVP code path executes an experiment, calls an LLM judge, or touches doctor/certify; each deferred phase is a tracked follow-up, not silent scope.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c7",
+      "kind": "success_signal",
+      "text": "On repo fixtures, score orders each high-meaning rewrite above its low-meaning original (e.g. the issue's auth-middleware pair); the JSON contract and each diagnostic rule are exercised by tests; README documents Meaning Gradient as a coherence dimension.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h13",
+          "text": "CI runs the fixture-ordering and diagnostic tests; a failing high/low ordering fails the build.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c8",
+      "kind": "requirement",
+      "text": "Scoring uses anchor-axis projection: embed the artifact, build meaning_axis = mean(high-anchor embeddings) - mean(low-anchor embeddings), score = cosine(artifact, axis) normalized to [0,1]; each subdimension gets its own high/low anchor pair set.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h1",
+          "text": "Scoring is deterministic for a fixed anchor set + embedding endpoint, and on the shipped fixtures every high-meaning artifact scores strictly above its paired low-meaning artifact.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c9",
+      "kind": "requirement",
+      "text": "Embeddings come from an OpenAI-compatible /v1/embeddings endpoint configured via env (COHERENCE_EMBED_URL / COHERENCE_EMBED_MODEL, defaulting to the same local embed gear eidetic uses); when unreachable, score exits with the CLI's environment-error code and a clear hint, while rule-based diagnostics still run offline.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h2",
+          "text": "With the embed endpoint down, 'coherence meaning score' exits with the environment-error code and an actionable hint, and a diagnostics-only invocation still succeeds; with it up, no non-stdlib import is needed.",
+          "status": "rejected"
+        },
+        {
+          "id": "h7",
+          "text": "With the embed endpoint down, 'coherence meaning score' exits with the environment-error code and an actionable hint, and a diagnostics-only invocation still succeeds offline.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c10",
+      "kind": "requirement",
+      "text": "Rule-based diagnostics detect missing_consequence, missing_owner, and missing_next_action without any embedding call, and land in the JSON output as a diagnostics list.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h3",
+          "text": "Each diagnostic rule fires on a fixture artifact that lacks the property and stays silent on a fixture that has it \u2014 one positive and one negative test per rule.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c11",
+      "kind": "requirement",
+      "text": "MVP ships 5 subdimensions \u2014 consequence, agency, causality, affordance, future_constraint \u2014 chosen from the issue's 'most important for Culture.dev' list; the JSON schema leaves room to add more without breaking consumers.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h4",
+          "text": "All 5 subdimensions appear in the score JSON with values in [0,1], and compare emits a signed delta per subdimension; adding a 6th subdimension later requires no schema change for existing consumers.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c12",
+      "kind": "decision",
+      "text": "Runtime dependencies stay zero: HTTP via stdlib urllib, cosine/mean in pure Python, anchors as plain text fixtures. The scaffold's agent-first CLI conventions (exit codes 0/1/2, --json, explain catalog entry) apply to the new noun.",
+      "origin": "llm",
+      "status": "rejected",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c13",
+      "kind": "requirement",
+      "text": "An example experiment config (issue-priority YAML, per issue #4 phase 3 shape) ships under examples/ as a committed artifact so the falsifiability path is visible \u2014 but the runner itself is out of scope.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h5",
+          "text": "The example experiment YAML parses against the documented config shape and is referenced from the README; no code path executes it.",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c14",
+      "kind": "assumption",
+      "text": "Anchor-axis projection yields a signal that is not just length or sentiment in disguise \u2014 this is exactly what the phase-3 experiment must test; the MVP makes no predictive-validity claim.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c15",
+      "kind": "non_goal",
+      "text": "The MVP does not claim meaning is 'solved' or predictive; it ships the instrumentation needed to prove or disprove the thesis empirically.",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c16",
+      "kind": "decision",
+      "text": "Runtime deps for the meaning engine: numpy (vector math) and httpx (embedding HTTP) are allowed as the package's first runtime dependencies \u2014 chosen over stdlib-only because phase 3 (experiments, cross-validation) lands in this same package next. Anchors stay plain-text fixtures; the scaffold's agent-first CLI conventions (exit codes 0/1/2, --json, explain catalog entry) apply to the new noun.",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    }
+  ],
+  "open_vagueness": [
+    {
+      "id": "v1",
+      "text": "Exact anchor texts per subdimension \u2014 seed from issue #4's high/low lists, expect iteration once real scores are observed; anchors are fixtures precisely so tuning them is a data change, not a code change.",
+      "kind": "unknown_nonblocking",
+      "claim_id": null
+    },
+    {
+      "id": "v2",
+      "text": "Whether the 5 subdimension axes are actually independent signals or collapse into one factor (or into length/sentiment) \u2014 answerable only by the phase-3 experiment.",
+      "kind": "unknown_nonblocking",
+      "claim_id": null
+    },
+    {
+      "id": "v3",
+      "text": "Score normalization choice (raw cosine vs rescaled [0,1] vs percentile against anchors) may need revisiting once distributions on real artifacts are visible.",
+      "kind": "unknown_nonblocking",
+      "claim_id": null
+    },
+    {
+      "id": "v4",
+      "text": "Phase 3: 'coherence meaning experiment run' + a 100-300 issue human-rated dataset (needs human raters and outcome labels).",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v5",
+      "text": "Phases 4-5: 'coherence doctor --dimension meaning' and 'coherence certify --dimension meaning' \u2014 integrate once scoring is trusted.",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v6",
+      "text": "LLM-judge fallback and pluggable embedding providers (issue #4 stretch tier).",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v7",
+      "text": "Culture.dev routing policy output (route_to / memory_candidate recommendations) \u2014 depends on validated scores.",
+      "kind": "follow_up",
+      "claim_id": null
+    }
+  ]
+}
