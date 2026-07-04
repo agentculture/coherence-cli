@@ -13,7 +13,10 @@ classifiers = [
     "Topic :: Software Development",
     "Intended Audience :: Developers",
 ]
-dependencies = []
+dependencies = [
+    "numpy>=1.26",
+    "httpx>=0.27",
+]
 
 [project.urls]
 Homepage = "https://github.com/agentculture/coherence-cli"
