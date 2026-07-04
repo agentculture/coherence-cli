@@ -21,3 +21,9 @@ ignores:
   - ".teken/**"
   # Vendored skills are cited verbatim from guildmaster — do not reformat them.
   - ".claude/skills/**"
+  # devague exports (specs/plans) are generated artifacts — placeholders like
+  # <file> trip MD033; the frame JSON is the source, don't hand-edit exports.
+  - "docs/specs/**"
+  - "docs/plans/**"
+  # devague working state (reviews are gitignored; frames may embed raw text).
+  - ".devague/**"
