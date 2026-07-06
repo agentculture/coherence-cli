@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/). This project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-07-06
+
+### Added
+
+- README "Reference deployment" note (Meaning Gradient section) and a matching
+  `coherence/meaning/embed.py` docstring addition: the lobes gateway serves an
+  `embedder` role, discoverable via `GET /capabilities` (lobes-cli >= 0.38
+  advertises a client-reachable endpoint per role); consumers such as
+  colleague resolve the endpoint from lobes and inject `COHERENCE_EMBED_URL` /
+  `COHERENCE_EMBED_MODEL` when armed. Also notes that each meaning score is a
+  model-relative, anchor-defined measurement — the embedding model and
+  anchors are the score's reference frame (gauge), never universal meaning
+  (issues #10, #11). Documentation only; no defaults, code behavior, or tests
+  changed.
+
+### Fixed
+
+- `uv.lock`'s recorded `coherence-cli` version was stale at `0.4.1` while
+  `pyproject.toml`/`CHANGELOG.md` had already moved to `0.5.0`; re-synced.
+
 ## [0.5.0] - 2026-07-04
 
 ### Added
