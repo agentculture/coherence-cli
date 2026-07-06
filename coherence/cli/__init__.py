@@ -62,12 +62,17 @@ def _argv_has_json(argv: list[str] | None) -> bool:
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    from coherence.cli._commands import assess as _assess_cmd
     from coherence.cli._commands import cli as _cli_group
     from coherence.cli._commands import doctor as _doctor_cmd
     from coherence.cli._commands import explain as _explain_cmd
+    from coherence.cli._commands import frames as _frames_cmd
+    from coherence.cli._commands import investiture as _investiture_cmd
     from coherence.cli._commands import learn as _learn_cmd
     from coherence.cli._commands import meaning as _meaning_cmd
     from coherence.cli._commands import overview as _overview_cmd
+    from coherence.cli._commands import quality as _quality_cmd
+    from coherence.cli._commands import signal as _signal_cmd
     from coherence.cli._commands import whoami as _whoami_cmd
 
     parser = _CliArgumentParser(
@@ -90,9 +95,11 @@ def _build_parser() -> argparse.ArgumentParser:
     _doctor_cmd.register(sub)
     _cli_group.register(sub)
     _meaning_cmd.register(sub)
-    # Register your own noun groups here:
-    #   from coherence.cli._commands import my_noun as _my_noun_group
-    #   _my_noun_group.register(sub)
+    _quality_cmd.register(sub)
+    _signal_cmd.register(sub)
+    _investiture_cmd.register(sub)
+    _frames_cmd.register(sub)
+    _assess_cmd.register(sub)
 
     return parser
 
