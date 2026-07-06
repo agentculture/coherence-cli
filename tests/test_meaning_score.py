@@ -32,6 +32,12 @@ from coherence.meaning.score import diagnostics_only, measure, score
 
 _SUBDIMENSIONS = ("consequence", "agency", "causality", "affordance", "future_constraint")
 
+# The three additive top-level keys the two-speed envelope adds to the meaning
+# outputs (see docs/envelope.md and tests/test_meaning_envelope_keys.py). These
+# assertions are relaxed to *tolerate* those additions while pinning the
+# pre-existing keys exactly.
+_ADDITIVE_KEYS = {"domain", "score_type", "frame"}
+
 
 def _fake_vector(text: str, dim: int = 12) -> list[float]:
     """Deterministic, non-zero pseudo-embedding derived from ``text``.
@@ -82,7 +88,9 @@ _RICH_TEXT = (
 
 def test_score_returns_exact_three_key_contract(tmp_path) -> None:
     result = score(_write(tmp_path, _RICH_TEXT), embed_fn=RecordingEmbed())
-    assert set(result) == {"meaning_score", "subdimensions", "diagnostics"}
+    # Additive-tolerant: the pinned v0.5.0 keys are exactly these; only the
+    # three additive envelope keys may be added on top.
+    assert set(result) - _ADDITIVE_KEYS == {"meaning_score", "subdimensions", "diagnostics"}
     assert isinstance(result["meaning_score"], float)
     assert isinstance(result["subdimensions"], dict)
     assert isinstance(result["diagnostics"], list)
@@ -207,8 +215,8 @@ def test_new_subdimension_appears_without_any_schema_change(monkeypatch, tmp_pat
     # ...the original five are still present...
     for name in _SUBDIMENSIONS:
         assert name in result["subdimensions"]
-    # ...and the top-level contract shape is unchanged.
-    assert set(result) == {"meaning_score", "subdimensions", "diagnostics"}
+    # ...and the top-level contract shape is unchanged (bar the additive keys).
+    assert set(result) - _ADDITIVE_KEYS == {"meaning_score", "subdimensions", "diagnostics"}
 
 
 # --- offline degrade ------------------------------------------------------
