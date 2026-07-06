@@ -36,6 +36,7 @@ from coherence.signal.schema import SeriesError
 
 # --- machine-readable error code ---
 CODE_NO_NUMERIC_VALUES = "collect_no_numeric_values"
+CODE_MEASUREMENT_NOT_AN_OBJECT = "collect_measurement_not_an_object"
 
 
 def _is_numeric(value: Any) -> bool:
@@ -125,7 +126,9 @@ def collect(
 
     Raises:
         SeriesError: If ALL inputs have zero extractable numeric values
-            (with code ``"collect_no_numeric_values"``).
+            (code ``"collect_no_numeric_values"``), or if any input is valid
+            JSON but not an object (code ``"collect_measurement_not_an_object"``
+            — e.g. a top-level list or string).
         ValueError or IndexError: If ``ids`` length does not match
             ``measurements`` length.
     """
@@ -139,6 +142,13 @@ def collect(
     points: list[dict[str, Any]] = []
 
     for index, measurement in enumerate(measurements):
+        if not isinstance(measurement, Mapping):
+            label = ids[index] if ids else f"measurement {index}"
+            raise SeriesError(
+                CODE_MEASUREMENT_NOT_AN_OBJECT,
+                f"{label} is not a JSON object: got {type(measurement).__name__} "
+                "(valid JSON, but a measurement must be an object with numeric fields)",
+            )
         values = _extract_values(measurement)
 
         # Accumulate domains (only non-None ones for later check)
@@ -214,4 +224,10 @@ def collect_files(paths: list[str]) -> dict[str, Any]:
     return collect(measurements, ids=ids)
 
 
-__all__ = ["collect", "collect_files", "SeriesError", "CODE_NO_NUMERIC_VALUES"]
+__all__ = [
+    "collect",
+    "collect_files",
+    "SeriesError",
+    "CODE_NO_NUMERIC_VALUES",
+    "CODE_MEASUREMENT_NOT_AN_OBJECT",
+]

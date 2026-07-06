@@ -64,4 +64,46 @@ def test_main_happy_path_writes_recorded_file_when_counts_match(
 
     assert recorded_path.exists()
     recorded = json.loads(recorded_path.read_text(encoding="utf-8"))
-    assert len(recorded) == len(module._collect_texts())
+    assert set(recorded) == {"metadata", "vectors"}
+    assert len(recorded["vectors"]) == len(module._collect_texts())
+
+
+def test_main_stamps_model_tieout_metadata_from_runtime_env(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The recording names the embedding model/endpoint that produced it.
+
+    This is the model tie-out: recorded geometry is only meaningful for its
+    source model, so the metadata must reflect the env the refresh actually
+    ran against — not a hardcoded default.
+    """
+    module = _load_script_module()
+    recorded_path = tmp_path / "recorded_vectors.json"
+    monkeypatch.setattr(module, "RECORDED_PATH", recorded_path)
+    monkeypatch.setattr(module, "embed_texts", lambda texts: [[0.0] for _ in texts])
+    monkeypatch.setenv("COHERENCE_EMBED_URL", "http://tieout.test:9999/v1")
+    monkeypatch.setenv("COHERENCE_EMBED_MODEL", "tieout/test-model")
+
+    module.main()
+
+    metadata = json.loads(recorded_path.read_text(encoding="utf-8"))["metadata"]
+    assert metadata["embedding_model"] == "tieout/test-model"
+    assert metadata["embedding_endpoint"] == "http://tieout.test:9999/v1"
+    assert metadata["recorded"]  # ISO date stamped
+    assert metadata["script"] == "scripts/refresh_meaning_vectors.py"
+
+
+def test_committed_recording_carries_model_tieout_metadata() -> None:
+    """The committed fixture must name its source embedding model.
+
+    Guards against silent drift: if the vectors are ever refreshed from a
+    different model, the metadata changes with them (the refresh script stamps
+    it), and a replay can be checked against the frame it claims.
+    """
+    from tests._meaning_recorded import load_recorded_metadata, recorded_vectors_present
+
+    if not recorded_vectors_present():
+        pytest.skip("recorded vectors absent")
+    metadata = load_recorded_metadata()
+    assert metadata is not None, "committed recording lacks the metadata tie-out block"
+    assert metadata["embedding_model"], "metadata must name the source embedding model"

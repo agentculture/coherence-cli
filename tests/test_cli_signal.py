@@ -241,3 +241,17 @@ def test_explain_signal_verb_resolves(verb: str, capsys: pytest.CaptureFixture[s
     rc = main(["explain", "signal", verb])
     assert rc == 0
     assert capsys.readouterr().out.strip()
+
+
+def test_signal_collect_non_object_json_is_user_error(tmp_path, capsys) -> None:
+    """A measurement file holding valid JSON that is not an object exits 1
+    with a structured error, never an unhandled AttributeError (PR #14
+    review, Qodo finding 3)."""
+    bad = tmp_path / "list.json"
+    bad.write_text('["not", "an", "object"]', encoding="utf-8")
+
+    rc = main(["signal", "collect", str(bad)])
+    err = capsys.readouterr().err
+    assert rc == 1
+    assert "list.json" in err
+    assert "object" in err

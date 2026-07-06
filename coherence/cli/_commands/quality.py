@@ -40,25 +40,20 @@ errors map to a non-zero exit, mirroring :mod:`coherence.cli._commands.meaning`:
 from __future__ import annotations
 
 import argparse
-from datetime import date, datetime
 from pathlib import Path
 from typing import Callable
 
+from coherence.cli._commands._artifact_io import (
+    FILE_ERRORS,
+    add_verb_json_flag,
+    file_cli_error,
+    parse_reference_date,
+)
 from coherence.cli._commands.overview import emit_overview
-from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
 from coherence.cli._output import emit_result
 from coherence.quality.compare import compare
 from coherence.quality.score import score_text
 
-_MISSING_FILE_REMEDIATION = "check that the artifact path exists and is a readable UTF-8 file"
-_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
-_ENCODING_REMEDIATION = "re-save the artifact as UTF-8 text"
-_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
-_REFERENCE_DATE_REMEDIATION = (
-    "pass --reference-date in YYYY-MM-DD format, e.g. --reference-date 2026-01-15"
-)
-
-_JSON_HELP = "Emit structured JSON."
 _REFERENCE_DATE_HELP = (
     "Reference date (YYYY-MM-DD) to compute freshness age against. Defaults to today."
 )
@@ -78,52 +73,8 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
     """
     try:
         return fn()
-    except FileNotFoundError as err:
-        missing = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file not found: {missing}",
-            remediation=_MISSING_FILE_REMEDIATION,
-        ) from err
-    except IsADirectoryError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"expected a file but got a directory: {path}",
-            remediation=_DIRECTORY_REMEDIATION,
-        ) from err
-    except UnicodeDecodeError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file is not valid UTF-8 text: {missing_path}",
-            remediation=_ENCODING_REMEDIATION,
-        ) from err
-    except OSError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_ENV_ERROR,
-            message=f"file unreadable: {path}: {err.strerror or err}",
-            remediation=_UNREADABLE_REMEDIATION,
-        ) from err
-
-
-def _parse_reference_date(raw: str | None) -> date:
-    """Parse ``--reference-date``, defaulting to today when omitted.
-
-    This IS the CLI boundary the engine docstrings point to: the library layer
-    never calls ``datetime.now()``, so today's date is supplied here, once,
-    rather than inside the engine.
-    """
-    if raw is None:
-        return date.today()
-    try:
-        return datetime.strptime(raw, "%Y-%m-%d").date()
-    except ValueError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"invalid --reference-date: {raw!r} (expected YYYY-MM-DD)",
-            remediation=_REFERENCE_DATE_REMEDIATION,
-        ) from err
+    except FILE_ERRORS as err:
+        raise file_cli_error(err, missing_path=missing_path, subject="artifact") from err
 
 
 def _read_file(path: str) -> str:
@@ -163,7 +114,7 @@ def _compare_render(result: dict) -> str:
 
 def cmd_score(args: argparse.Namespace) -> int:
     json_mode = bool(getattr(args, "json", False))
-    reference_date = _parse_reference_date(getattr(args, "reference_date", None))
+    reference_date = parse_reference_date(getattr(args, "reference_date", None))
     result = _guard(
         lambda: score_text(_read_file(args.file), reference_date=reference_date),
         missing_path=args.file,
@@ -174,7 +125,7 @@ def cmd_score(args: argparse.Namespace) -> int:
 
 def cmd_compare(args: argparse.Namespace) -> int:
     json_mode = bool(getattr(args, "json", False))
-    reference_date = _parse_reference_date(getattr(args, "reference_date", None))
+    reference_date = parse_reference_date(getattr(args, "reference_date", None))
     result = _guard(
         lambda: compare(args.before, args.after, reference_date=reference_date),
         missing_path=f"{args.before} or {args.after}",
@@ -214,14 +165,14 @@ def register(sub: argparse._SubParsersAction) -> None:
         "quality",
         help="Score/compare an artifact's information quality (see 'coherence quality').",
     )
-    p.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(p)
     p.set_defaults(func=_no_verb, json=False)
     noun_sub = p.add_subparsers(dest="quality_command", parser_class=type(p))
 
     sc = noun_sub.add_parser("score", help="Score one artifact's information quality.")
     sc.add_argument("file", help="Path to the artifact to score.")
     sc.add_argument("--reference-date", dest="reference_date", help=_REFERENCE_DATE_HELP)
-    sc.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(sc)
     sc.set_defaults(func=cmd_score)
 
     cmp_ = noun_sub.add_parser(
@@ -231,5 +182,5 @@ def register(sub: argparse._SubParsersAction) -> None:
     cmp_.add_argument("before", help="Path to the earlier artifact version.")
     cmp_.add_argument("after", help="Path to the later artifact version.")
     cmp_.add_argument("--reference-date", dest="reference_date", help=_REFERENCE_DATE_HELP)
-    cmp_.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(cmp_)
     cmp_.set_defaults(func=cmd_compare)

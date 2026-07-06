@@ -35,8 +35,13 @@ from __future__ import annotations
 import argparse
 from typing import Callable
 
+from coherence.cli._commands._artifact_io import (
+    FILE_ERRORS,
+    add_verb_json_flag,
+    file_cli_error,
+)
 from coherence.cli._commands.overview import emit_overview
-from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
+from coherence.cli._errors import EXIT_ENV_ERROR, CliError
 from coherence.cli._output import emit_result
 from coherence.investiture.compare import compare
 from coherence.investiture.score import score
@@ -46,12 +51,7 @@ _EMBED_REMEDIATION = (
     "point COHERENCE_EMBED_URL (and COHERENCE_EMBED_MODEL) at a reachable "
     "OpenAI-compatible /v1/embeddings endpoint"
 )
-_MISSING_FILE_REMEDIATION = "check that the artifact path exists and is a readable UTF-8 file"
-_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
-_ENCODING_REMEDIATION = "re-save the artifact as UTF-8 text"
-_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
 
-_JSON_HELP = "Emit structured JSON."
 
 _VERBS = [
     "score <file> — score one artifact's estimated micro-investiture",
@@ -73,33 +73,8 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
             message=str(err) or "embedding endpoint unavailable",
             remediation=_EMBED_REMEDIATION,
         ) from err
-    except FileNotFoundError as err:
-        missing = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file not found: {missing}",
-            remediation=_MISSING_FILE_REMEDIATION,
-        ) from err
-    except IsADirectoryError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"expected a file but got a directory: {path}",
-            remediation=_DIRECTORY_REMEDIATION,
-        ) from err
-    except UnicodeDecodeError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file is not valid UTF-8 text: {missing_path}",
-            remediation=_ENCODING_REMEDIATION,
-        ) from err
-    except OSError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_ENV_ERROR,
-            message=f"file unreadable: {path}: {err.strerror or err}",
-            remediation=_UNREADABLE_REMEDIATION,
-        ) from err
+    except FILE_ERRORS as err:
+        raise file_cli_error(err, missing_path=missing_path, subject="artifact") from err
 
 
 def _fmt(value: float | None) -> str:
@@ -184,13 +159,13 @@ def register(sub: argparse._SubParsersAction) -> None:
         help="Score/compare an artifact's estimated micro-investiture "
         "(see 'coherence investiture').",
     )
-    p.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(p)
     p.set_defaults(func=_no_verb, json=False)
     noun_sub = p.add_subparsers(dest="investiture_command", parser_class=type(p))
 
     sc = noun_sub.add_parser("score", help="Score one artifact's estimated micro-investiture.")
     sc.add_argument("file", help="Path to the artifact to score.")
-    sc.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(sc)
     sc.set_defaults(func=cmd_score)
 
     cmp_ = noun_sub.add_parser(
@@ -199,5 +174,5 @@ def register(sub: argparse._SubParsersAction) -> None:
     )
     cmp_.add_argument("before", help="Path to the earlier artifact version.")
     cmp_.add_argument("after", help="Path to the later artifact version.")
-    cmp_.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(cmp_)
     cmp_.set_defaults(func=cmd_compare)

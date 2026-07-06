@@ -514,3 +514,27 @@ def test_collect_multiple_domain_types() -> None:
     assert "meaning_score" in series.points[0].values
     # Second point has quality values
     assert "freshness" in series.points[1].values
+
+
+# --- non-object measurements (PR #14 review, Qodo finding 3) ------------------
+
+
+def test_collect_rejects_non_object_measurement_with_series_error() -> None:
+    """Valid JSON that is not an object must be a controlled user error."""
+    from coherence.signal.collect import CODE_MEASUREMENT_NOT_AN_OBJECT
+
+    with pytest.raises(SeriesError) as exc_info:
+        collect([[1.0, 2.0]], ids=["not-an-object.json"])
+    assert exc_info.value.code == CODE_MEASUREMENT_NOT_AN_OBJECT
+    assert "not-an-object.json" in str(exc_info.value)
+
+
+def test_collect_files_rejects_non_object_json_file(tmp_path) -> None:
+    from coherence.signal.collect import CODE_MEASUREMENT_NOT_AN_OBJECT, collect_files
+
+    bad = tmp_path / "list.json"
+    bad.write_text("[]", encoding="utf-8")
+    with pytest.raises(SeriesError) as exc_info:
+        collect_files([str(bad)])
+    assert exc_info.value.code == CODE_MEASUREMENT_NOT_AN_OBJECT
+    assert "list.json" in str(exc_info.value)

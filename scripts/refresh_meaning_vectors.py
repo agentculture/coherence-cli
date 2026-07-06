@@ -5,8 +5,11 @@ The offline ordering test (``tests/test_meaning_ordering.py``) is the
 falsifiability gate for the Meaning Gradient: it asserts that real embeddings
 rank a rich artifact above a vague one. CI has no embedding gear, so the test
 replays *recorded* vectors instead of hitting the network. This script produces
-that recording — ``tests/fixtures/meaning/recorded_vectors.json``, a plain
-``{text -> vector}`` map — by embedding, in one round-trip, the union of:
+that recording — ``tests/fixtures/meaning/recorded_vectors.json``, a
+``{"metadata": {...}, "vectors": {text -> vector}}`` document whose metadata
+names the embedding model/endpoint that produced the vectors (the model
+tie-out: recorded geometry is only meaningful for its source model) — by
+embedding, in one round-trip, the union of:
 
 * every fixture file's full text under ``tests/fixtures/meaning/`` (each
   ``*.high.txt`` / ``*.low.txt`` pair and every ``series/*.txt`` version), and
@@ -53,10 +56,11 @@ Why this matters (issue #6, risks r1/r2)
 from __future__ import annotations
 
 import json
+from datetime import date
 from pathlib import Path
 
 from coherence.meaning import axis
-from coherence.meaning.embed import embed_texts
+from coherence.meaning.embed import _embed_model, _embed_url, embed_texts
 
 # tests/fixtures/meaning/ lives two levels up from this script (repo/scripts/..).
 _REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -96,14 +100,25 @@ def main() -> None:
             f"(expected {len(texts)}, got {len(vectors)}); refusing to write a "
             "truncated recorded_vectors.json"
         )
-    recorded = {text: vector for text, vector in zip(texts, vectors)}
+    recorded = {
+        # The model tie-out: the recorded geometry is only meaningful for the
+        # embedding model that produced it, so the fixture names its source
+        # (resolved from the same env config embed_texts used for this run).
+        "metadata": {
+            "embedding_model": _embed_model(),
+            "embedding_endpoint": _embed_url(),
+            "recorded": date.today().isoformat(),
+            "script": "scripts/refresh_meaning_vectors.py",
+        },
+        "vectors": {text: vector for text, vector in zip(texts, vectors)},
+    }
 
     RECORDED_PATH.parent.mkdir(parents=True, exist_ok=True)
     RECORDED_PATH.write_text(
         json.dumps(recorded, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
-    print(f"recorded {len(recorded)} vectors -> {RECORDED_PATH}")
+    print(f"recorded {len(recorded['vectors'])} vectors -> {RECORDED_PATH}")
 
 
 if __name__ == "__main__":

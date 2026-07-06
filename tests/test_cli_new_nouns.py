@@ -207,3 +207,38 @@ def test_measure_analyze_assess_predict_each_map_to_a_working_command(
         },
     )
     assert main(["assess", str(artifact), "--json"]) == 0
+
+
+# --- noun-level --json placement (PR #14 review, Qodo finding 2) --------------
+#
+# ``--json`` is declared on both the noun parser and each verb subparser; the
+# verb-level flag uses ``default=argparse.SUPPRESS`` so an absent verb flag
+# never clobbers a noun-level ``--json`` already parsed into the namespace.
+# These tests pin the placement-independence: JSON before the verb == after.
+
+
+def test_signal_noun_level_json_before_verb_is_honored(tmp_path, capsys) -> None:
+    series = {
+        "domain": "quality",
+        "points": [
+            {"id": "p0", "index": 0, "values": {"x": 0.1}},
+            {"id": "p1", "index": 1, "values": {"x": 0.2}},
+        ],
+    }
+    path = tmp_path / "series.json"
+    path.write_text(json.dumps(series), encoding="utf-8")
+
+    rc = main(["signal", "--json", "trend", str(path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    json.loads(out)  # JSON output despite --json preceding the verb
+
+
+def test_quality_noun_level_json_before_verb_is_honored(tmp_path, capsys) -> None:
+    artifact = tmp_path / "artifact.txt"
+    artifact.write_text("Decided on 2026-01-01: do the thing.", encoding="utf-8")
+
+    rc = main(["quality", "--json", "score", str(artifact)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert json.loads(out)["domain"] == "quality"

@@ -41,22 +41,22 @@ import json
 from pathlib import Path
 from typing import Callable
 
+from coherence.cli._commands._artifact_io import (
+    FILE_ERRORS,
+    add_verb_json_flag,
+    file_cli_error,
+)
 from coherence.cli._commands.overview import emit_overview
-from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
+from coherence.cli._errors import EXIT_USER_ERROR, CliError
 from coherence.cli._output import emit_result
 from coherence.frames.diff import diff_frames
 from coherence.frames.inspect import inspect_measurement
 
-_MISSING_FILE_REMEDIATION = "check that the measurement path exists and is a readable UTF-8 file"
-_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
-_ENCODING_REMEDIATION = "re-save the measurement file as UTF-8 text"
-_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
 _INVALID_JSON_REMEDIATION = "check the file contains valid JSON"
 _NOT_AN_OBJECT_REMEDIATION = (
     "pass a measurement JSON object (e.g. the output of 'coherence meaning score')"
 )
 
-_JSON_HELP = "Emit structured JSON."
 
 _VERBS = [
     "inspect <measurement.json> — which frame produced a measurement, and is "
@@ -69,26 +69,6 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
     """Run an engine call, converting its exceptions into :class:`CliError`."""
     try:
         return fn()
-    except FileNotFoundError as err:
-        missing = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file not found: {missing}",
-            remediation=_MISSING_FILE_REMEDIATION,
-        ) from err
-    except IsADirectoryError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"expected a file but got a directory: {path}",
-            remediation=_DIRECTORY_REMEDIATION,
-        ) from err
-    except UnicodeDecodeError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file is not valid UTF-8 text: {missing_path}",
-            remediation=_ENCODING_REMEDIATION,
-        ) from err
     except json.JSONDecodeError as err:
         raise CliError(
             code=EXIT_USER_ERROR,
@@ -101,12 +81,12 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
             message=f"measurement JSON must be an object: {missing_path}: {err}",
             remediation=_NOT_AN_OBJECT_REMEDIATION,
         ) from err
-    except OSError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_ENV_ERROR,
-            message=f"file unreadable: {path}: {err.strerror or err}",
-            remediation=_UNREADABLE_REMEDIATION,
+    except FILE_ERRORS as err:
+        raise file_cli_error(
+            err,
+            missing_path=missing_path,
+            subject="measurement",
+            encoding_subject="measurement file",
         ) from err
 
 
@@ -205,7 +185,7 @@ def register(sub: argparse._SubParsersAction) -> None:
         "frames",
         help="Inspect/diff the semantic frame behind a measurement (see 'coherence frames').",
     )
-    p.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(p)
     p.set_defaults(func=_no_verb, json=False)
     noun_sub = p.add_subparsers(dest="frames_command", parser_class=type(p))
 
@@ -213,11 +193,11 @@ def register(sub: argparse._SubParsersAction) -> None:
         "inspect", help="Report the frame that produced a measurement and its provenance state."
     )
     ins.add_argument("file", help="Path to the measurement JSON.")
-    ins.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(ins)
     ins.set_defaults(func=cmd_inspect)
 
     di = noun_sub.add_parser("diff", help="Decide whether two measurements are frame-comparable.")
     di.add_argument("a", help="Path to the first measurement JSON.")
     di.add_argument("b", help="Path to the second measurement JSON.")
-    di.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(di)
     di.set_defaults(func=cmd_diff)

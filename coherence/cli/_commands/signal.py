@@ -54,8 +54,13 @@ import json
 from pathlib import Path
 from typing import Callable
 
+from coherence.cli._commands._artifact_io import (
+    FILE_ERRORS,
+    add_verb_json_flag,
+    file_cli_error,
+)
 from coherence.cli._commands.overview import emit_overview
-from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
+from coherence.cli._errors import EXIT_USER_ERROR, CliError
 from coherence.cli._output import emit_result
 from coherence.signal.collect import collect_files
 from coherence.signal.forecast import ForecastError, forecast
@@ -64,10 +69,6 @@ from coherence.signal.resonance import resonance
 from coherence.signal.schema import SeriesError, load_series
 from coherence.signal.trend import trend
 
-_MISSING_FILE_REMEDIATION = "check that the series path exists and is a readable UTF-8 file"
-_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
-_ENCODING_REMEDIATION = "re-save the series file as UTF-8 text"
-_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
 _SERIES_REMEDIATION = (
     'pass a well-formed series JSON: {"domain": <str|null>, "points": [...]}; '
     "see 'coherence explain signal'"
@@ -77,7 +78,6 @@ _FORECAST_REMEDIATION = (
 )
 _INVALID_JSON_REMEDIATION = "check the file contains valid JSON"
 
-_JSON_HELP = "Emit structured JSON."
 _FIELDS_HEADER = "fields:"
 _SERIES_FILE_HELP = "Path to the series JSON."
 
@@ -109,38 +109,18 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
             message=str(err) or "nothing forecastable",
             remediation=_FORECAST_REMEDIATION,
         ) from err
-    except FileNotFoundError as err:
-        missing = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file not found: {missing}",
-            remediation=_MISSING_FILE_REMEDIATION,
-        ) from err
-    except IsADirectoryError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"expected a file but got a directory: {path}",
-            remediation=_DIRECTORY_REMEDIATION,
-        ) from err
-    except UnicodeDecodeError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file is not valid UTF-8 text: {missing_path}",
-            remediation=_ENCODING_REMEDIATION,
-        ) from err
     except json.JSONDecodeError as err:
         raise CliError(
             code=EXIT_USER_ERROR,
             message=f"file is not valid JSON: {missing_path}: {err}",
             remediation=_INVALID_JSON_REMEDIATION,
         ) from err
-    except OSError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_ENV_ERROR,
-            message=f"file unreadable: {path}: {err.strerror or err}",
-            remediation=_UNREADABLE_REMEDIATION,
+    except FILE_ERRORS as err:
+        raise file_cli_error(
+            err,
+            missing_path=missing_path,
+            subject="series",
+            encoding_subject="series file",
         ) from err
 
 
@@ -264,7 +244,7 @@ def register(sub: argparse._SubParsersAction) -> None:
         help="Trend/pattern/resonance/forecast/collect a measurement series "
         "(see 'coherence signal').",
     )
-    p.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(p)
     p.set_defaults(func=_no_verb, json=False)
     noun_sub = p.add_subparsers(dest="signal_command", parser_class=type(p))
 
@@ -272,29 +252,29 @@ def register(sub: argparse._SubParsersAction) -> None:
         "trend", help="Per-field f'/f'' differences, monotonicity, and volatility."
     )
     tr.add_argument("file", help=_SERIES_FILE_HELP)
-    tr.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(tr)
     tr.set_defaults(func=cmd_trend)
 
     pa = noun_sub.add_parser("pattern", help="Per-field motif detection.")
     pa.add_argument("file", help=_SERIES_FILE_HELP)
-    pa.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(pa)
     pa.set_defaults(func=cmd_pattern)
 
     re_ = noun_sub.add_parser("resonance", help="Pairwise signed alignment between fields.")
     re_.add_argument("file", help=_SERIES_FILE_HELP)
-    re_.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(re_)
     re_.set_defaults(func=cmd_resonance)
 
     fo = noun_sub.add_parser(
         "forecast", help="Naive next-point extrapolation per field (labelled 'extrapolation')."
     )
     fo.add_argument("file", help=_SERIES_FILE_HELP)
-    fo.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(fo)
     fo.set_defaults(func=cmd_forecast)
 
     co = noun_sub.add_parser(
         "collect", help="Build a series from N measurement JSONs of any domain."
     )
     co.add_argument("files", nargs="+", help="One or more measurement JSON paths, in order.")
-    co.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(co)
     co.set_defaults(func=cmd_collect)

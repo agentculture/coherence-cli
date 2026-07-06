@@ -39,22 +39,17 @@ Error contract
 from __future__ import annotations
 
 import argparse
-from datetime import date, datetime
 from typing import Callable
 
 from coherence.assess import assess
-from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
+from coherence.cli._commands._artifact_io import (
+    FILE_ERRORS,
+    add_verb_json_flag,
+    file_cli_error,
+    parse_reference_date,
+)
 from coherence.cli._output import emit_result
 
-_MISSING_FILE_REMEDIATION = "check that the artifact path exists and is a readable UTF-8 file"
-_DIRECTORY_REMEDIATION = "pass a path to a file, not a directory"
-_ENCODING_REMEDIATION = "re-save the artifact as UTF-8 text"
-_UNREADABLE_REMEDIATION = "check the file's permissions and that it is readable by this process"
-_REFERENCE_DATE_REMEDIATION = (
-    "pass --reference-date in YYYY-MM-DD format, e.g. --reference-date 2026-01-15"
-)
-
-_JSON_HELP = "Emit structured JSON."
 _REFERENCE_DATE_HELP = (
     "Reference date (YYYY-MM-DD) for quality's freshness scoring. Defaults to today."
 )
@@ -69,46 +64,8 @@ def _guard(fn: Callable[[], dict], *, missing_path: str) -> dict:
     """
     try:
         return fn()
-    except FileNotFoundError as err:
-        missing = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file not found: {missing}",
-            remediation=_MISSING_FILE_REMEDIATION,
-        ) from err
-    except IsADirectoryError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"expected a file but got a directory: {path}",
-            remediation=_DIRECTORY_REMEDIATION,
-        ) from err
-    except UnicodeDecodeError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"file is not valid UTF-8 text: {missing_path}",
-            remediation=_ENCODING_REMEDIATION,
-        ) from err
-    except OSError as err:
-        path = getattr(err, "filename", None) or missing_path
-        raise CliError(
-            code=EXIT_ENV_ERROR,
-            message=f"file unreadable: {path}: {err.strerror or err}",
-            remediation=_UNREADABLE_REMEDIATION,
-        ) from err
-
-
-def _parse_reference_date(raw: str | None) -> date:
-    if raw is None:
-        return date.today()
-    try:
-        return datetime.strptime(raw, "%Y-%m-%d").date()
-    except ValueError as err:
-        raise CliError(
-            code=EXIT_USER_ERROR,
-            message=f"invalid --reference-date: {raw!r} (expected YYYY-MM-DD)",
-            remediation=_REFERENCE_DATE_REMEDIATION,
-        ) from err
+    except FILE_ERRORS as err:
+        raise file_cli_error(err, missing_path=missing_path, subject="artifact") from err
 
 
 def _render(result: dict) -> str:
@@ -130,7 +87,7 @@ def _render(result: dict) -> str:
 
 def cmd_assess(args: argparse.Namespace) -> int:
     json_mode = bool(getattr(args, "json", False))
-    reference_date = _parse_reference_date(getattr(args, "reference_date", None))
+    reference_date = parse_reference_date(getattr(args, "reference_date", None))
     result = _guard(
         lambda: assess(args.file, reference_date=reference_date),
         missing_path=args.file,
@@ -147,5 +104,5 @@ def register(sub: argparse._SubParsersAction) -> None:
     )
     p.add_argument("file", help="Path to the artifact to assess.")
     p.add_argument("--reference-date", dest="reference_date", help=_REFERENCE_DATE_HELP)
-    p.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(p)
     p.set_defaults(func=cmd_assess)
