@@ -283,14 +283,11 @@ Growing the `meaning` JSON is fine (backward compatible); reshaping it is not
 
 ## Coherence CLI examples
 
-The verb shapes below are the target CLI surface for the five-domain engine.
-`quality`, `signal`, `investiture`, and `frames` are implemented as library
-engines with full offline test coverage today; their `argparse` registration
-as CLI nouns lands as a parallel build task alongside this restructure —
-`coherence-cli cli overview` and `--help` always show what is actually wired
-in your checkout. `meaning` is already registered and documented in full
-above. Flags are kept minimal here; see each noun's `explain` entry (once
-wired) or its module docstring for the exact flag surface.
+All five domains are wired as CLI nouns with full offline test coverage —
+`coherence-cli cli overview` and `--help` show the complete surface, and
+every verb supports `--json` with the 0/1/2 exit-code contract. `meaning`
+is documented in full above. Flags are kept minimal here; see each noun's
+`explain` entry or its module docstring for the exact flag surface.
 
 ```bash
 # quality — offline, rule-based
