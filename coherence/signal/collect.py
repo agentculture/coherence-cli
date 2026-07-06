@@ -142,36 +142,9 @@ def collect(
     points: list[dict[str, Any]] = []
 
     for index, measurement in enumerate(measurements):
-        if not isinstance(measurement, Mapping):
-            label = ids[index] if ids else f"measurement {index}"
-            raise SeriesError(
-                CODE_MEASUREMENT_NOT_AN_OBJECT,
-                f"{label} is not a JSON object: got {type(measurement).__name__} "
-                "(valid JSON, but a measurement must be an object with numeric fields)",
-            )
-        values = _extract_values(measurement)
-
-        # Accumulate domains (only non-None ones for later check)
-        domain = _get_domain(measurement)
-        domains_seen.add(domain)
-
-        # Use explicit id or synthesize
-        point_id = ids[index] if ids else f"point-{index}"
-
-        # Carry frame from measurement (or None if missing)
-        frame = measurement.get("frame")
-        if frame is not None and not isinstance(frame, Mapping):
-            frame = None
-
-        points.append(
-            {
-                "id": point_id,
-                "index": index,
-                "timestamp": None,
-                "values": values,
-                "frame": frame,
-            }
-        )
+        point_id = ids[index] if ids else None
+        points.append(_build_point(measurement, index, point_id))
+        domains_seen.add(_get_domain(measurement))
 
     # After collecting all points, check if ANY have numeric values
     if not any(p["values"] for p in points):
@@ -180,17 +153,40 @@ def collect(
             "all measurements have zero extractable numeric values",
         )
 
-    # Determine series-level domain: set if ALL inputs agree on one domain string, else None
-    # If any input has no domain (None) or domains differ, series domain is None
+    return {"domain": _series_domain(domains_seen), "points": points}
+
+
+def _build_point(measurement: Any, index: int, point_id: str | None) -> dict[str, Any]:
+    """Build one series point, rejecting non-object measurements loudly."""
+    if not isinstance(measurement, Mapping):
+        label = point_id if point_id is not None else f"measurement {index}"
+        raise SeriesError(
+            CODE_MEASUREMENT_NOT_AN_OBJECT,
+            f"{label} is not a JSON object: got {type(measurement).__name__} "
+            "(valid JSON, but a measurement must be an object with numeric fields)",
+        )
+    # Carry frame from measurement verbatim (or None if missing/non-dict)
+    frame = measurement.get("frame")
+    if frame is not None and not isinstance(frame, Mapping):
+        frame = None
+    return {
+        "id": point_id if point_id is not None else f"point-{index}",
+        "index": index,
+        "timestamp": None,
+        "values": _extract_values(measurement),
+        "frame": frame,
+    }
+
+
+def _series_domain(domains_seen: set[str | None]) -> str | None:
+    """The series-level domain: set only when ALL inputs agree on one string.
+
+    Any missing domain (``None``) or disagreement → ``None`` (never an error).
+    """
     non_none_domains = {d for d in domains_seen if d is not None}
     if len(non_none_domains) == 1 and len(domains_seen) == 1:
-        # All inputs have the same non-None domain
-        series_domain = non_none_domains.pop()
-    else:
-        # Any domain is missing/None, or domains differ → set series domain to None
-        series_domain = None
-
-    return {"domain": series_domain, "points": points}
+        return non_none_domains.pop()
+    return None
 
 
 def collect_files(paths: list[str]) -> dict[str, Any]:
