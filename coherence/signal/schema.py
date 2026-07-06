@@ -70,6 +70,8 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Mapping
 
+from coherence.frames.compat import check_series_frames
+
 # --- machine-readable codes ------------------------------------------------
 #
 # Structural failures (raised as SeriesError):
@@ -410,7 +412,9 @@ def load_series(data: Mapping[str, Any] | str | bytes) -> Series:
         point = _normalize_point(raw_point, position, diagnostics)
         if point is not None:
             points.append(point)
-    return Series(points=points, domain=domain, diagnostics=diagnostics)
+    series = Series(points=points, domain=domain, diagnostics=diagnostics)
+    series.diagnostics.extend(check_series_frames(series))
+    return series
 
 
 def series_from_meaning_trend(
