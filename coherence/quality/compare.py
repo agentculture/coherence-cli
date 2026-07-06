@@ -77,9 +77,7 @@ def _delta(before_score: dict, after_score: dict) -> dict:
     before_scores = before_score["scores"]
     after_scores = after_score["scores"]
 
-    deltas = {
-        key: after_scores[key] - before_scores[key] for key in after_scores.keys()
-    }
+    deltas = {key: after_scores[key] - before_scores[key] for key in after_scores.keys()}
     return deltas
 
 

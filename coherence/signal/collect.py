@@ -34,7 +34,6 @@ from typing import Any, Mapping
 
 from coherence.signal.schema import SeriesError
 
-
 # --- machine-readable error code ---
 CODE_NO_NUMERIC_VALUES = "collect_no_numeric_values"
 
