@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/). This project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-07-06
+
+### Added
+
+- Converged devague spec for the five-domain coherence engine restructure — quality, meaning, signal, investiture, frames (issues #8/#9/#10/#11 plus confirmed additions: quality score/compare MVP, signal forecast, assess verb, signed resonance/interference, frames inspect/diff with mixed-frame guard, signal collect): docs/specs/2026-07-06-coherence-cli-ships-as-a-five-domain-coherence-eng.md
+- Build plan (18 tasks, 7 file-disjoint waves) covering all 38 spec targets with TDD acceptance criteria: docs/plans/2026-07-06-coherence-cli-ships-as-a-five-domain-coherence-eng.md
+- Frame decisions on record: two-speed envelope adoption (new nouns emit full domain/score_type/scores/frame/diagnostics envelope; existing meaning verbs gain only additive keys), coherence/quality/ layout over claims/, meaning trend delegating to the signal layer byte-identically
+
 ## [0.5.0] - 2026-07-04
 
 ### Added
