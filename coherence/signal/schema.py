@@ -387,7 +387,7 @@ def load_series(data: Mapping[str, Any] | str | bytes) -> Series:
     if isinstance(data, (str, bytes)):
         try:
             parsed = json.loads(data)
-        except (json.JSONDecodeError, ValueError) as exc:
+        except ValueError as exc:
             raise SeriesError(CODE_INVALID_JSON, f"series is not valid JSON: {exc}") from exc
         data = parsed
 

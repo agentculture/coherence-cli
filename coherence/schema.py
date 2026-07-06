@@ -152,17 +152,26 @@ def validate_envelope(envelope: dict[str, Any]) -> dict[str, Any]:
         if key not in envelope:
             raise EnvelopeError(CODE_MISSING_KEY, f"envelope missing required key: {key!r}")
 
-    domain = envelope["domain"]
+    _validate_identity(envelope["domain"], envelope["score_type"])
+    _validate_scores(envelope["scores"])
+    _validate_frame(envelope["frame"])
+    _validate_diagnostics(envelope["diagnostics"])
+
+    return envelope
+
+
+def _validate_identity(domain: Any, score_type: Any) -> None:
+    """Check the ``domain`` and ``score_type`` envelope fields."""
     if not isinstance(domain, str) or not domain:
         raise EnvelopeError(CODE_INVALID_DOMAIN, "envelope['domain'] must be a non-empty str")
-
-    score_type = envelope["score_type"]
     if not isinstance(score_type, str) or not score_type:
         raise EnvelopeError(
             CODE_INVALID_SCORE_TYPE, "envelope['score_type'] must be a non-empty str"
         )
 
-    scores = envelope["scores"]
+
+def _validate_scores(scores: Any) -> None:
+    """Check the ``scores`` envelope field: a dict of str -> numeric."""
     if not isinstance(scores, dict):
         raise EnvelopeError(
             CODE_INVALID_SCORES,
@@ -180,38 +189,44 @@ def validate_envelope(envelope: dict[str, Any]) -> dict[str, Any]:
                 f"envelope['scores'][{name!r}] must be numeric, got {type(value).__name__}",
             )
 
-    frame = envelope["frame"]
+
+def _validate_frame(frame: Any) -> None:
+    """Check the ``frame`` envelope field: a dict or ``None``."""
     if frame is not None and not isinstance(frame, dict):
         raise EnvelopeError(
             CODE_INVALID_FRAME,
             f"envelope['frame'] must be a dict or None, got {type(frame).__name__}",
         )
 
-    diagnostics = envelope["diagnostics"]
+
+def _validate_diagnostics(diagnostics: Any) -> None:
+    """Check the ``diagnostics`` envelope field: a list of code/message dicts."""
     if not isinstance(diagnostics, list):
         raise EnvelopeError(
             CODE_INVALID_DIAGNOSTICS,
             f"envelope['diagnostics'] must be a list, got {type(diagnostics).__name__}",
         )
     for index, diagnostic in enumerate(diagnostics):
-        if not isinstance(diagnostic, dict) or set(diagnostic) != _DIAGNOSTIC_KEYS:
-            raise EnvelopeError(
-                CODE_INVALID_DIAGNOSTIC_ENTRY,
-                f"envelope['diagnostics'][{index}] must be exactly "
-                "{'code': str, 'message': str}",
-            )
-        if not isinstance(diagnostic["code"], str) or not diagnostic["code"]:
-            raise EnvelopeError(
-                CODE_INVALID_DIAGNOSTIC_ENTRY,
-                f"envelope['diagnostics'][{index}]['code'] must be a non-empty str",
-            )
-        if not isinstance(diagnostic["message"], str) or not diagnostic["message"]:
-            raise EnvelopeError(
-                CODE_INVALID_DIAGNOSTIC_ENTRY,
-                f"envelope['diagnostics'][{index}]['message'] must be a non-empty str",
-            )
+        _validate_diagnostic_entry(index, diagnostic)
 
-    return envelope
+
+def _validate_diagnostic_entry(index: int, diagnostic: Any) -> None:
+    """Check one diagnostics entry: exactly ``{'code': str, 'message': str}``."""
+    if not isinstance(diagnostic, dict) or set(diagnostic) != _DIAGNOSTIC_KEYS:
+        raise EnvelopeError(
+            CODE_INVALID_DIAGNOSTIC_ENTRY,
+            f"envelope['diagnostics'][{index}] must be exactly {{'code': str, 'message': str}}",
+        )
+    if not isinstance(diagnostic["code"], str) or not diagnostic["code"]:
+        raise EnvelopeError(
+            CODE_INVALID_DIAGNOSTIC_ENTRY,
+            f"envelope['diagnostics'][{index}]['code'] must be a non-empty str",
+        )
+    if not isinstance(diagnostic["message"], str) or not diagnostic["message"]:
+        raise EnvelopeError(
+            CODE_INVALID_DIAGNOSTIC_ENTRY,
+            f"envelope['diagnostics'][{index}]['message'] must be a non-empty str",
+        )
 
 
 __all__ = [

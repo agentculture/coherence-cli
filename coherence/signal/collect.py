@@ -59,34 +59,41 @@ def _extract_values(measurement: Mapping[str, Any]) -> dict[str, float]:
     Returns an empty dict if nothing is extractable, or raises SeriesError
     (handled by the caller) if the entire measurement has zero numeric values.
     """
-    values: dict[str, float] = {}
+    scores_values = _scores_values(measurement)
+    if scores_values:  # full-envelope path: anything in ``scores`` wins
+        return scores_values
+    return _leaf_values(measurement)
 
-    # Check for full-envelope ``scores`` dict first
-    if "scores" in measurement:
-        scores = measurement["scores"]
-        if isinstance(scores, Mapping):
-            for name, value in scores.items():
-                if isinstance(name, str) and _is_numeric(value):
-                    values[name] = float(value)
-            if values:  # If we found anything in scores, we're done
-                return values
 
-    # Otherwise, harvest numeric leaves generically:
-    # 1. Top-level numeric keys (e.g., meaning_score)
-    for key, value in measurement.items():
-        if isinstance(key, str) and _is_numeric(value):
-            values[key] = float(value)
+def _numeric_entries(mapping: Mapping[str, Any]) -> dict[str, float]:
+    """Return the str-keyed numeric entries of ``mapping``, coerced to float."""
+    return {
+        name: float(value)
+        for name, value in mapping.items()
+        if isinstance(name, str) and _is_numeric(value)
+    }
 
-    # 2. Numeric entries of any top-level dict of numbers
-    # (e.g., subdimensions.consequence)
+
+def _scores_values(measurement: Mapping[str, Any]) -> dict[str, float]:
+    """Numeric entries of a dict-valued ``scores`` key (full-envelope path)."""
+    scores = measurement.get("scores")
+    if isinstance(scores, Mapping):
+        return _numeric_entries(scores)
+    return {}
+
+
+def _leaf_values(measurement: Mapping[str, Any]) -> dict[str, float]:
+    """Harvest numeric leaves generically.
+
+    Top-level numeric keys (e.g. ``meaning_score``), then the numeric entries
+    of any top-level dict of numbers — the subkey (e.g. ``consequence`` from
+    ``subdimensions``) becomes the field name, matching the naming of
+    :func:`coherence.signal.schema.series_from_meaning_trend`.
+    """
+    values = _numeric_entries(measurement)
     for key, value in measurement.items():
         if isinstance(key, str) and isinstance(value, Mapping):
-            for subkey, subvalue in value.items():
-                if isinstance(subkey, str) and _is_numeric(subvalue):
-                    # Use the subkey (e.g., "consequence" from "subdimensions")
-                    # to match the naming of series_from_meaning_trend
-                    values[subkey] = float(subvalue)
-
+            values.update(_numeric_entries(value))
     return values
 
 

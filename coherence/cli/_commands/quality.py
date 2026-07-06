@@ -64,7 +64,7 @@ _REFERENCE_DATE_HELP = (
 )
 
 _VERBS = [
-    "score <file> — score one artifact's information quality " "(freshness/provenance/fidelity)",
+    "score <file> — score one artifact's information quality (freshness/provenance/fidelity)",
     "compare <before> <after> — signed before/after quality delta",
 ]
 

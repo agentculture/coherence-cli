@@ -32,7 +32,7 @@ _VERBS = [
     "doctor — check the agent-identity invariants",
     "meaning <file> — score/compare/trend an artifact's meaning gradient "
     "(see 'coherence meaning')",
-    "quality <file> — score/compare an artifact's information quality " "(see 'coherence quality')",
+    "quality <file> — score/compare an artifact's information quality (see 'coherence quality')",
     "signal <series.json> — trend/pattern/resonance/forecast/collect a "
     "measurement series (see 'coherence signal')",
     "investiture <file> — score/compare an artifact's estimated micro-investiture "

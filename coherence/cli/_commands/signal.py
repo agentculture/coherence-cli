@@ -78,6 +78,8 @@ _FORECAST_REMEDIATION = (
 _INVALID_JSON_REMEDIATION = "check the file contains valid JSON"
 
 _JSON_HELP = "Emit structured JSON."
+_FIELDS_HEADER = "fields:"
+_SERIES_FILE_HELP = "Path to the series JSON."
 
 _VERBS = [
     "trend <series.json> — per-field f'/f'' differences, monotonicity, volatility",
@@ -147,7 +149,7 @@ def _read_file(path: str) -> str:
 
 
 def _trend_render(result: dict) -> str:
-    lines = [f"n: {result['n']}", f"domain: {result['domain']}", "", "fields:"]
+    lines = [f"n: {result['n']}", f"domain: {result['domain']}", "", _FIELDS_HEADER]
     for name, field in result["fields"].items():
         lines.append(
             f"  {name}: n_present={field['n_present']} "
@@ -157,7 +159,7 @@ def _trend_render(result: dict) -> str:
 
 
 def _pattern_render(result: dict) -> str:
-    lines = [f"n: {result['n']}", "", "fields:"]
+    lines = [f"n: {result['n']}", "", _FIELDS_HEADER]
     for name, field in result["fields"].items():
         motifs = ", ".join(field["motifs"]) if field["motifs"] else "none"
         lines.append(f"  {name}: motifs=[{motifs}]")
@@ -177,7 +179,7 @@ def _resonance_render(result: dict) -> str:
 
 
 def _forecast_render(result: dict) -> str:
-    lines = [f"n: {result['n']}", f"label: {result['label']}", "", "fields:"]
+    lines = [f"n: {result['n']}", f"label: {result['label']}", "", _FIELDS_HEADER]
     for name, field in result["fields"].items():
         if field["forecast"] is None:
             lines.append(f"  {name}: not forecast ({field['reason']})")
@@ -269,24 +271,24 @@ def register(sub: argparse._SubParsersAction) -> None:
     tr = noun_sub.add_parser(
         "trend", help="Per-field f'/f'' differences, monotonicity, and volatility."
     )
-    tr.add_argument("file", help="Path to the series JSON.")
+    tr.add_argument("file", help=_SERIES_FILE_HELP)
     tr.add_argument("--json", action="store_true", help=_JSON_HELP)
     tr.set_defaults(func=cmd_trend)
 
     pa = noun_sub.add_parser("pattern", help="Per-field motif detection.")
-    pa.add_argument("file", help="Path to the series JSON.")
+    pa.add_argument("file", help=_SERIES_FILE_HELP)
     pa.add_argument("--json", action="store_true", help=_JSON_HELP)
     pa.set_defaults(func=cmd_pattern)
 
     re_ = noun_sub.add_parser("resonance", help="Pairwise signed alignment between fields.")
-    re_.add_argument("file", help="Path to the series JSON.")
+    re_.add_argument("file", help=_SERIES_FILE_HELP)
     re_.add_argument("--json", action="store_true", help=_JSON_HELP)
     re_.set_defaults(func=cmd_resonance)
 
     fo = noun_sub.add_parser(
         "forecast", help="Naive next-point extrapolation per field (labelled 'extrapolation')."
     )
-    fo.add_argument("file", help="Path to the series JSON.")
+    fo.add_argument("file", help=_SERIES_FILE_HELP)
     fo.add_argument("--json", action="store_true", help=_JSON_HELP)
     fo.set_defaults(func=cmd_forecast)
 
