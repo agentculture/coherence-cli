@@ -32,6 +32,18 @@ Commands
   coherence meaning score <file>   Score an artifact's meaning gradient.
   coherence meaning compare <a> <b>  Signed before/after meaning delta.
   coherence meaning trend <f>...   Per-step f'/f'' across a series.
+  coherence quality score <file>   Score an artifact's information quality.
+  coherence quality compare <a> <b>  Signed before/after quality delta.
+  coherence signal trend <s.json>  Per-field f'/f'' across a series.
+  coherence signal pattern <s.json>  Per-field motif detection.
+  coherence signal resonance <s.json>  Pairwise signed alignment between fields.
+  coherence signal forecast <s.json>  Naive next-point extrapolation per field.
+  coherence signal collect <m>...  Build a series from N measurement JSONs.
+  coherence investiture score <file>  Score an artifact's estimated micro-investiture.
+  coherence investiture compare <a> <b>  Signed before/after investiture delta.
+  coherence frames inspect <m.json>  Report the frame behind a measurement.
+  coherence frames diff <a> <b>   Are two measurements frame-comparable?
+  coherence assess <file>         Run every applicable domain on an artifact.
 
 Machine-readable output
 -----------------------
@@ -66,6 +78,39 @@ def _as_json_payload() -> dict[str, object]:
             {"path": ["meaning", "score"], "summary": "Score an artifact's meaning gradient."},
             {"path": ["meaning", "compare"], "summary": "Signed before/after meaning delta."},
             {"path": ["meaning", "trend"], "summary": "Per-step f'/f'' across a series."},
+            {"path": ["quality", "score"], "summary": "Score an artifact's information quality."},
+            {"path": ["quality", "compare"], "summary": "Signed before/after quality delta."},
+            {"path": ["signal", "trend"], "summary": "Per-field f'/f'' across a series."},
+            {"path": ["signal", "pattern"], "summary": "Per-field motif detection."},
+            {
+                "path": ["signal", "resonance"],
+                "summary": "Pairwise signed alignment between fields.",
+            },
+            {
+                "path": ["signal", "forecast"],
+                "summary": "Naive next-point extrapolation per field.",
+            },
+            {
+                "path": ["signal", "collect"],
+                "summary": "Build a series from N measurement JSONs.",
+            },
+            {
+                "path": ["investiture", "score"],
+                "summary": "Score an artifact's estimated micro-investiture.",
+            },
+            {
+                "path": ["investiture", "compare"],
+                "summary": "Signed before/after investiture delta.",
+            },
+            {
+                "path": ["frames", "inspect"],
+                "summary": "Report the frame that produced a measurement.",
+            },
+            {"path": ["frames", "diff"], "summary": "Are two measurements frame-comparable?"},
+            {
+                "path": ["assess"],
+                "summary": "Run every applicable coherence domain on an artifact.",
+            },
         ],
         "exit_codes": {
             "0": "success",

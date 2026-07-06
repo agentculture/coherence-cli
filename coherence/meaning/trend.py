@@ -13,7 +13,13 @@ Design constraints (mirroring ``score`` and ``compare``):
   both the artifact's embedding vector *and* its raw per-dimension scores from a
   single ``embed_fn`` round-trip. The same ``embed_fn`` injection seam is
   threaded through so tests drive it fully offline. Each artifact is embedded
-  **exactly once** (one ``measure`` call per point).
+  **exactly once** (one ``measure`` call per point). The per-step differencing
+  itself is *not* reimplemented here either: the f'/f'' math delegates to
+  :func:`coherence.signal.trend.first_difference` and
+  :func:`~coherence.signal.trend.second_difference`, the generic per-step
+  difference functions the signal layer exposes for exactly this reuse — so
+  ``meaning trend`` is a dimension-specific wrapper (embed, label, assemble)
+  around the shared difference engine, not a private copy of it.
 * **Per-step and unitless.** Differences are plain ``s[i+1] - s[i]`` between
   consecutive points — no division by any time delta. A "step" is one gap
   between adjacent points in the series.
@@ -84,7 +90,16 @@ JSON output shape
 
       # Convenience flag: True when n>=3 (second differences populated),
       # False when n==2 (every second.values is null).
-      "second_difference_available": <bool>
+      "second_difference_available": <bool>,
+
+      # Additive two-speed envelope keys (the keys above keep their pinned
+      # v0.5.0 shape byte-identical). One shared frame block for the whole
+      # series — see docs/envelope.md.
+      "domain": "meaning",
+      "score_type": "model_relative_anchor_defined_projection",
+      "frame": {"embedding_model": ..., "embedding_endpoint": ...,
+                "anchor_set": ..., "projection_method": ...,
+                "score_type": ..., "axes": [...]}
     }
 
 Agreement with ``compare``
@@ -106,7 +121,8 @@ from numpy.typing import ArrayLike
 
 from coherence.meaning import axis as axis_mod
 from coherence.meaning.embed import embed_texts
-from coherence.meaning.score import EmbedFn, measure
+from coherence.meaning.score import DOMAIN, SCORE_TYPE, EmbedFn, meaning_frame, measure
+from coherence.signal.trend import first_difference, second_difference
 
 # The global-axis dimension name; it maps to the top-level ``meaning_score``
 # rather than into the per-point ``subdimensions`` map (mirrors ``score``).
@@ -125,15 +141,6 @@ def _second_unavailable_reason(n: int) -> str:
         "A second difference is the first difference of the first-difference "
         "series, which is empty for a single step."
     )
-
-
-def _first_difference(series: Sequence[float]) -> list[float]:
-    """Return the discrete first difference ``[s[i+1] - s[i] for i]``.
-
-    A per-step, unitless difference: the result is one shorter than ``series``
-    (empty when ``series`` has fewer than two elements).
-    """
-    return [series[i + 1] - series[i] for i in range(len(series) - 1)]
 
 
 def _cosine_distance(u: ArrayLike, v: ArrayLike) -> float:
@@ -156,40 +163,48 @@ def _cosine_distance(u: ArrayLike, v: ArrayLike) -> float:
     return 1.0 - cos
 
 
+def _second_slot(second_values: list[float] | None, n: int) -> dict:
+    """Wrap a computed second-difference series into its output slot.
+
+    When ``n >= 3`` the series is present (``reason`` null); when ``n < 3`` there
+    are too few points to form a second difference, so it is reported as
+    ``null`` with a meaning-specific ``reason`` string rather than an empty list.
+    ``second_values`` is ignored (and may be ``None``) in the ``n < 3`` case.
+    """
+    if n >= 3:
+        return {"values": second_values, "reason": None}
+    return {"values": None, "reason": _second_unavailable_reason(n)}
+
+
 def _derivatives_from_levels(levels: Sequence[float], n: int) -> dict:
     """Build the ``{first, second}`` slot for a per-*point* level series.
 
-    ``levels`` has length ``n``; ``first`` is its difference (length ``n-1``)
-    and ``second`` is the difference of ``first`` (length ``n-2``, or null with
-    a reason when ``n < 3``).
+    ``levels`` has length ``n``. ``first`` is its f' (length ``n-1``) and
+    ``second`` its f'' (length ``n-2``, or null with a reason when ``n < 3``).
+    Both differences are delegated to the signal layer:
+    :func:`coherence.signal.trend.first_difference` and
+    :func:`~coherence.signal.trend.second_difference` — no differencing math
+    lives here.
     """
-    first = _first_difference(levels)
-    return _slot(first, n)
+    first = first_difference(levels)
+    second_values = second_difference(levels) if n >= 3 else None
+    return {"first": {"values": first, "reason": None}, "second": _second_slot(second_values, n)}
 
 
 def _derivatives_from_drift(drift: Sequence[float], n: int) -> dict:
     """Build the ``{first, second}`` slot for the per-*step* drift series.
 
     The drift series (length ``n-1``) is already the first-order velocity
-    through embedding space, so it *is* ``first``; ``second`` is its difference
-    (length ``n-2``, or null with a reason when ``n < 3``).
+    through embedding space, so it *is* ``first``; ``second`` is its own first
+    difference (acceleration; length ``n-2``, or null with a reason when
+    ``n < 3``) — delegated to
+    :func:`coherence.signal.trend.first_difference`. Note this is a *single*
+    first difference of an already-first-order series, not
+    ``second_difference`` of a level series.
     """
-    return _slot(list(drift), n)
-
-
-def _slot(first: list[float], n: int) -> dict:
-    """Wrap a first-difference series and derive its second difference.
-
-    ``first`` (length ``n-1``) goes into the ``first`` slot verbatim; its own
-    first difference becomes the ``second`` slot (length ``n-2``). When ``n <
-    3`` the second difference is empty, so it is reported as ``null`` with a
-    ``reason`` rather than an empty list.
-    """
-    if n >= 3:
-        second = {"values": _first_difference(first), "reason": None}
-    else:
-        second = {"values": None, "reason": _second_unavailable_reason(n)}
-    return {"first": {"values": first, "reason": None}, "second": second}
+    first = list(drift)
+    second_values = first_difference(first) if n >= 3 else None
+    return {"first": {"values": first, "reason": None}, "second": _second_slot(second_values, n)}
 
 
 def trend(paths: Sequence[str | Path], *, embed_fn: EmbedFn = embed_texts) -> dict:
@@ -261,6 +276,13 @@ def trend(paths: Sequence[str | Path], *, embed_fn: EmbedFn = embed_texts) -> di
         "per_step_drift": per_step_drift,
         "signals": signals,
         "second_difference_available": n >= 3,
+        # Additive two-speed envelope keys (the pre-existing keys above stay
+        # byte-identical; see ``docs/envelope.md``). One top-level frame block
+        # for the whole series — every point was measured under the same runtime
+        # embed config, so a single shared frame describes them all.
+        "domain": DOMAIN,
+        "score_type": SCORE_TYPE,
+        "frame": meaning_frame(),
     }
 
 

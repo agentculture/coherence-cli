@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 from typing import Callable
 
+from coherence.cli._commands._artifact_io import add_verb_json_flag
 from coherence.cli._commands.overview import emit_overview
 from coherence.cli._errors import EXIT_ENV_ERROR, EXIT_USER_ERROR, CliError
 from coherence.cli._output import emit_result
@@ -239,7 +240,7 @@ def register(sub: argparse._SubParsersAction) -> None:
 
     sc = noun_sub.add_parser("score", help="Score one artifact's meaning gradient.")
     sc.add_argument("file", help="Path to the artifact to score.")
-    sc.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(sc)
     sc.set_defaults(func=cmd_score)
 
     cmp_ = noun_sub.add_parser(
@@ -248,7 +249,7 @@ def register(sub: argparse._SubParsersAction) -> None:
     )
     cmp_.add_argument("before", help="Path to the earlier artifact version.")
     cmp_.add_argument("after", help="Path to the later artifact version.")
-    cmp_.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(cmp_)
     cmp_.set_defaults(func=cmd_compare)
 
     tr = noun_sub.add_parser(
@@ -260,5 +261,5 @@ def register(sub: argparse._SubParsersAction) -> None:
         nargs="+",
         help="Two or more artifact paths, in series order.",
     )
-    tr.add_argument("--json", action="store_true", help=_JSON_HELP)
+    add_verb_json_flag(tr)
     tr.set_defaults(func=cmd_trend)

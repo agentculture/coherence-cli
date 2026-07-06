@@ -39,6 +39,12 @@ from ._meaning_synthetic import synthetic_embed_fn
 
 _SUBDIMENSIONS = ("consequence", "agency", "causality", "affordance", "future_constraint")
 
+# The three additive top-level keys the two-speed envelope adds to the meaning
+# outputs (see docs/envelope.md). These shape assertions are relaxed to
+# *tolerate* those additions while pinning the pre-existing keys exactly; the
+# additive keys' presence/values are asserted in tests/test_meaning_envelope_keys.py.
+_ADDITIVE_KEYS = {"domain", "score_type", "frame"}
+
 _FIXTURES = Path(__file__).resolve().parent / "fixtures" / "meaning"
 _FILE_A = _FIXTURES / "auth_middleware.high.txt"
 _FILE_B = _FIXTURES / "auth_middleware.low.txt"
@@ -54,8 +60,14 @@ def _assert_unit_float(value: object, label: str) -> None:
 
 
 def _assert_score_schema(payload: dict) -> None:
-    """A ``score``-shaped dict: exact keys, five subdimensions, unit floats, diags."""
-    assert set(payload) == {"meaning_score", "subdimensions", "diagnostics"}
+    """A ``score``-shaped dict: exact keys, five subdimensions, unit floats, diags.
+
+    Additive-tolerant: a top-level ``score`` result gains the three envelope
+    keys, while the clean before/after blocks nested in a ``compare`` result do
+    not — stripping the additive keys must leave exactly the pinned v0.5.0 keys
+    in both cases.
+    """
+    assert set(payload) - _ADDITIVE_KEYS == {"meaning_score", "subdimensions", "diagnostics"}
     _assert_unit_float(payload["meaning_score"], "meaning_score")
 
     subs = payload["subdimensions"]
@@ -133,7 +145,7 @@ def test_score_schema_from_real_engine() -> None:
 
 def test_compare_schema_from_real_engine() -> None:
     result = compare(_FILE_A, _FILE_B, embed_fn=synthetic_embed_fn)
-    assert set(result) == {"before", "after", "delta"}
+    assert set(result) - _ADDITIVE_KEYS == {"before", "after", "delta"}
     _assert_score_schema(result["before"])
     _assert_score_schema(result["after"])
     _assert_delta_schema(result["delta"])
@@ -211,7 +223,7 @@ def test_cli_compare_json_matches_contract(
     rc = main(["meaning", "compare", str(_FILE_A), str(_FILE_B), "--json"])
     assert rc == 0
     payload = json.loads(capsys.readouterr().out)
-    assert set(payload) == {"before", "after", "delta"}
+    assert set(payload) - _ADDITIVE_KEYS == {"before", "after", "delta"}
     _assert_score_schema(payload["before"])
     _assert_score_schema(payload["after"])
     _assert_delta_schema(payload["delta"])
