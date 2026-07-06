@@ -1,0 +1,418 @@
+{
+  "slug": "coherence-cli-ships-as-a-five-domain-coherence-eng",
+  "title": "coherence-cli ships as a five-domain coherence engine \u2014 quality, meaning, signal, investiture, and frames \u2014 so agents can measure, analyze, assess, and predict the coherence of content before acting on it",
+  "schema_version": 1,
+  "status": "exported",
+  "created": "2026-07-06T18:34:01Z",
+  "updated": "2026-07-06T20:30:52Z",
+  "claims": [
+    {
+      "id": "c1",
+      "kind": "announcement",
+      "text": "coherence-cli ships as a five-domain coherence engine \u2014 quality, meaning, signal, investiture, and frames \u2014 so agents can measure, analyze, assess, and predict the coherence of content before acting on it",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h16",
+          "text": "the announcement is honest only if all five domains are real at ship time: each has a package home, docs, and at least one working measurement path (meaning already shipped; quality/signal/investiture ship verbs; frames ships as provenance on every embedding-derived output) \u2014 'measure, analyze, assess, predict' each maps to a concrete command",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c2",
+      "kind": "audience",
+      "text": "Agentic-mesh consumers of score JSON \u2014 colleague's post-loop coherence gate (first wired consumer), steward, eidetic, taskmaster \u2014 plus the humans operating coherence-cli directly",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h1",
+          "text": "colleague's coherence gate validates against the restructured meaning JSON without editing its pinned fixture (additive keys only), and the steward/eidetic/taskmaster consumer-map rows in README remain accurate after repositioning",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c3",
+      "kind": "before_state",
+      "text": "meaning is the only implemented domain (score/compare/trend, v0.5.0); the README tagline promises claim-quality (freshness/provenance/fidelity) that has NO code behind it; no signal, investiture, or frames code exists; score JSON carries no provenance of the embedding frame that produced it",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h2",
+          "text": "verifiable by inspection at branch point: no quality/signal/investiture/frames packages exist under coherence/, and the README tagline promises freshness/provenance/fidelity behavior git grep cannot find an implementation for",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c4",
+      "kind": "after_state",
+      "text": "coherence-cli is positioned and structured as a five-domain coherence engine: quality, meaning, signal, investiture, frames each have a package home and docs; signal and investiture ship as new CLI nouns; every measurement JSON gains an additive frame/provenance block and a shared envelope direction (domain, score_type, scores, frame, diagnostics); existing meaning commands keep their exact JSON shape modulo additive keys",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h3",
+          "text": "on the merged result, a fresh checkout shows a package home per domain, signal+investiture registered as CLI nouns, and a diff of 'meaning score --json' output vs v0.5.0 that is purely additive (no key removed, renamed, or retyped)",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c5",
+      "kind": "why_it_matters",
+      "text": "The one-domain tagline is now false in both directions (promises unbuilt quality checks, hides shipped meaning measurement); frame provenance makes scores falsifiable (model-relative, anchor-defined, declared gauge) instead of pretending universal meaning; a reusable signal layer means every current and future dimension gets trend/pattern/resonance analysis without reimplementation",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h4",
+          "text": "after the change, every emitted embedding-derived score JSON names the frame that produced it (model, endpoint, anchor set, projection method), so a consumer can distinguish measurements from different gauges",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c6",
+      "kind": "success_signal",
+      "text": "All existing tests keep passing and colleague's pinned 'meaning score --json' fixture still validates (only additive keys); each new noun ships with --json, exit codes 0/1/2, explain-catalog entries, and offline tests; README leads with the five-domain positioning and names claim quality as the first practical domain, not the whole product",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h5",
+          "text": "CI passes with the pre-existing meaning test assertions unmodified except where they gain additive-key tolerance; every new-noun test runs offline from committed fixtures; 'coherence explain' resolves every new noun/verb path",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c7",
+      "kind": "boundary",
+      "text": "No breaking CLI changes: existing meaning commands and their JSON stay valid; renames arrive as aliases or a documented versioned migration, never silently",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h6",
+          "text": "a pre/post diff of every pre-existing command's output shows only added keys \u2014 no verb, flag, key, or exit-code semantic is removed or renamed in this restructure",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c8",
+      "kind": "non_goal",
+      "text": "No FFT / physical wave modeling, no LLM-judge dependency, no cross-model embedding transformations, no gauge-invariant scoring, no proof of long-term behavioral causality \u2014 all documented as planned extensions, not built",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c9",
+      "kind": "non_goal",
+      "text": "No mystical language in CLI output or docs: no literal physics, no literal souls, no universal-meaning claims \u2014 scores are described as model-relative, anchor-defined semantic measurements",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c10",
+      "kind": "non_goal",
+      "text": "No full rewrite: the shipped meaning engine is preserved and reframed as one domain of five, not reimplemented",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c11",
+      "kind": "requirement",
+      "text": "signal noun (#9 MVP): documented source-agnostic series input schema; 'coherence signal trend' (first/second differences + monotonicity/volatility diagnostics), 'coherence signal pattern' (motifs: increasing, decreasing, plateau, spike, reversal, stair-step), 'coherence signal resonance' (pairwise alignment/correlation between numeric fields); harmonic/wave/decay/interference documented as planned; handles n=1, n=2, n=3+ and missing/null/non-numeric values without crashing",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h7",
+          "text": "the same signal verb accepts a series converted from meaning trend output AND a hand-written series with arbitrary numeric value names (proving source-agnosticism), and tests cover n=1, n=2, n=3+, plus missing/null/non-numeric values without crashing",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c12",
+      "kind": "requirement",
+      "text": "investiture noun (#8 MVP): 'coherence investiture score' returns investiture_score, mode, components, evidence, diagnostics \u2014 computed from existing Meaning Gradient subdimensions in mode:estimated, explicitly reporting that persistence/behavioral effect were NOT measured; 'coherence investiture compare' returns before/after scores and signed deltas; trace deferred; calls into coherence.meaning rather than duplicating embedding/axis logic",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h8",
+          "text": "artifact-only investiture output always carries mode:estimated plus a diagnostic stating persistence/behavioral effect were not measured; with the embed endpoint down it exits 2 with the same actionable hint as meaning (it reuses coherence.meaning, not a duplicate embed path)",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c13",
+      "kind": "requirement",
+      "text": "frames domain (#10 MVP): meaning score/compare/trend JSON gains an additive frame block (embedding_model, embedding_endpoint, anchor_set, axis/axes, projection_method, score_type); investiture and signal outputs carry or pass through frame provenance where the source has it; missing provenance is handled explicitly, not silently; explain catalog gains: semantic frame, frame provenance, model-relative score, anchor-relative score, gauge-robust score, field sample, trajectory, signal",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h9",
+          "text": "the frame block reports the endpoint/model actually used at runtime (resolved env config, not hardcoded defaults); when a signal input lacks provenance the output says so explicitly (null frame + diagnostic) rather than omitting the key",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c14",
+      "kind": "requirement",
+      "text": "restructure (#11): package gains clear domain boundaries (quality/, meaning/, signal/, investiture/, frames/ as applicable); README leads with the five-domain coherence-engine positioning and a domains section; measurement JSON documents the shared-envelope direction (domain, score_type, scores, frame, diagnostics) with backward compatibility for existing consumers",
+      "origin": "user",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h10",
+          "text": "README + explain catalog present all five domains with claim quality named as the first practical domain; the shared envelope is documented with its two-speed adoption rule; all pre-existing tests still pass",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c15",
+      "kind": "requirement",
+      "text": "meaning trend delegates its difference math to the signal layer (coherence.signal.trend) so 'meaning trend' becomes a dimension-specific wrapper and behavior stays identical",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h11",
+          "text": "meaning trend --json output on the recorded-vector fixtures is byte-identical before and after the delegation refactor",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c16",
+      "kind": "requirement",
+      "text": "quality domain MVP (greenfield, replaces #11's 'preserve existing code' premise): 'coherence quality score <file>' \u2014 fully offline, rule-based first cut scoring freshness (dateable statements present/absent, age when derivable), provenance (source attribution present/absent), fidelity (quoted-vs-paraphrased signals), task validity hooks \u2014 emitting the shared envelope with domain:quality and honest diagnostics for what a heuristic cannot measure",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h12",
+          "text": "quality score runs with zero network access; its diagnostics name what the heuristics could NOT verify (e.g. source liveness, actual publication date) instead of inflating scores; absence of dateable statements lowers confidence, never fabricates freshness",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c17",
+      "kind": "requirement",
+      "text": "predict surface: 'coherence signal forecast <series.json>' \u2014 naive next-point extrapolation (linear trend + recent-delta blend) with explicit confidence caveats and a minimum-points guard; documented as extrapolation of a declared frame's signal, not prophecy",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h13",
+          "text": "forecast exits 1 with a hint below the minimum-points threshold; output is labeled as extrapolation and names the window/method used; a constant series forecasts the constant and a linear series extends the line",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c18",
+      "kind": "requirement",
+      "text": "assess surface: 'coherence assess <file>' \u2014 one verb that runs every applicable domain measurement (quality heuristics, meaning scores, investiture estimate) and emits a single multi-domain report using the shared envelope, with per-domain availability honestly reported (e.g. embed endpoint down means meaning absent, quality still present)",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h14",
+          "text": "with the embed endpoint down, assess still returns the offline domains (quality, rule-based diagnostics) and explicitly lists meaning/investiture as unavailable \u2014 partial availability is reported, never silently dropped",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c19",
+      "kind": "decision",
+      "text": "package layout uses coherence/quality/ (not claims/) \u2014 #11's own criterion prefers quality/ when scope exceeds individual claims, and the greenfield domain is defined broader than claim checks",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c20",
+      "kind": "assumption",
+      "text": "colleague's pinned fixture tolerates additive keys in 'meaning score --json' (its #11 comment commits to passing a native frame block through verbatim), so the frame block can land without a compatibility mode",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h15",
+          "text": "confirmed against colleague's actual gate fixture (colleague#291/#294): its assertion style is subset/additive-tolerant, or colleague signs off on the additive frame block before this merges",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c21",
+      "kind": "decision",
+      "text": "envelope adoption is two-speed: NEW nouns (quality, signal, investiture, assess) emit the full shared envelope (domain, score_type, scores, frame, diagnostics) from day one; EXISTING meaning verbs keep their pinned shape and gain only additive top-level keys (domain, score_type, frame) \u2014 nesting meaning_score/subdimensions under scores is deferred to an explicitly versioned future migration",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c22",
+      "kind": "requirement",
+      "text": "signal resonance reports SIGNED alignment: positively aligned pairs (resonance) and negatively aligned pairs (interference) from the same computation \u2014 answering both 'do these streams reinforce?' and 'do these streams conflict?' in the MVP instead of deferring interference",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h17",
+          "text": "resonance output on a series where two fields rise together yields a positive pair, and where one rises while another falls yields a negative (interference) pair; both come from one signed metric, not two code paths",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c23",
+      "kind": "requirement",
+      "text": "frames becomes a real noun, not just metadata: 'coherence frames inspect <score.json>' reports the frame that produced a measurement and whether provenance is complete; 'coherence frames diff <a.json> <b.json>' answers whether two measurements are frame-comparable (same gauge) \u2014 and meaning trend / signal verbs WARN when fed measurements from mixed frames, guarding the silent cross-gauge comparison error",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h18",
+          "text": "frames inspect on a v0.5.0-era JSON (no frame block) reports missing provenance explicitly instead of erroring; frames diff on two measurements from different embed models reports not-comparable; feeding mixed-frame inputs to trend produces a visible warning, never a silent number",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c24",
+      "kind": "requirement",
+      "text": "'coherence signal collect <score.json>...' builds a series file (the documented signal input schema) from N envelope-bearing measurement JSONs of any domain \u2014 the glue that turns per-artifact measurements into analyzable/forecastable signals without hand-authoring series files",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h19",
+          "text": "collect accepts meaning, quality, and investiture score JSONs alike (envelope-driven, no per-domain code), preserves input ordering, carries frame provenance through to the series, and its output validates against the same series schema signal verbs consume",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    },
+    {
+      "id": "c25",
+      "kind": "requirement",
+      "text": "'coherence quality compare <before> <after>' ships alongside quality score \u2014 uniform verb grammar (score/compare) across measuring domains, so rewrites can be evaluated for quality deltas exactly like meaning deltas",
+      "origin": "llm",
+      "status": "confirmed",
+      "honesty_conditions": [
+        {
+          "id": "h20",
+          "text": "quality compare emits signed per-component deltas mirroring meaning compare's shape, and runs fully offline like quality score",
+          "status": "confirmed"
+        }
+      ],
+      "hard_questions": [],
+      "links": []
+    }
+  ],
+  "open_vagueness": [
+    {
+      "id": "v1",
+      "text": "harmonic, wave, decay, interference signal analyses \u2014 documented as planned families, built only after real series data exists",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v2",
+      "text": "gauge-robustness checks (meaning robustness / signal robustness across models and anchor sets) \u2014 documented as planned extension per #10, needs multiple embed frames available",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v3",
+      "text": "investiture trace verb \u2014 needs history/outcome evidence sources (git survival, recall events, downstream references) that do not exist as inputs yet",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v4",
+      "text": "meaning experiment runner, doctor --dimension, certify --dimension, LLM-judge fallback, routing-policy output \u2014 already-tracked #4/#6 roadmap, untouched by this restructure",
+      "kind": "follow_up",
+      "claim_id": null
+    },
+    {
+      "id": "v5",
+      "text": "how far quality heuristics can honestly go without live source fetching (real freshness verification needs network access to sources) \u2014 MVP stays offline-rule-based; depth is unknown until used",
+      "kind": "unknown_nonblocking",
+      "claim_id": null
+    },
+    {
+      "id": "v6",
+      "text": "freshness half-life / staleness-date prediction (quality x time decay model) \u2014 a real 'predict coherence' direction but needs longitudinal data before a model is honest",
+      "kind": "follow_up",
+      "claim_id": null
+    }
+  ]
+}
