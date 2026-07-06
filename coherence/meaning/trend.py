@@ -84,7 +84,16 @@ JSON output shape
 
       # Convenience flag: True when n>=3 (second differences populated),
       # False when n==2 (every second.values is null).
-      "second_difference_available": <bool>
+      "second_difference_available": <bool>,
+
+      # Additive two-speed envelope keys (the keys above keep their pinned
+      # v0.5.0 shape byte-identical). One shared frame block for the whole
+      # series — see docs/envelope.md.
+      "domain": "meaning",
+      "score_type": "model_relative_anchor_defined_projection",
+      "frame": {"embedding_model": ..., "embedding_endpoint": ...,
+                "anchor_set": ..., "projection_method": ...,
+                "score_type": ..., "axes": [...]}
     }
 
 Agreement with ``compare``
@@ -106,7 +115,7 @@ from numpy.typing import ArrayLike
 
 from coherence.meaning import axis as axis_mod
 from coherence.meaning.embed import embed_texts
-from coherence.meaning.score import EmbedFn, measure
+from coherence.meaning.score import DOMAIN, SCORE_TYPE, EmbedFn, meaning_frame, measure
 
 # The global-axis dimension name; it maps to the top-level ``meaning_score``
 # rather than into the per-point ``subdimensions`` map (mirrors ``score``).
@@ -261,6 +270,13 @@ def trend(paths: Sequence[str | Path], *, embed_fn: EmbedFn = embed_texts) -> di
         "per_step_drift": per_step_drift,
         "signals": signals,
         "second_difference_available": n >= 3,
+        # Additive two-speed envelope keys (the pre-existing keys above stay
+        # byte-identical; see ``docs/envelope.md``). One top-level frame block
+        # for the whole series — every point was measured under the same runtime
+        # embed config, so a single shared frame describes them all.
+        "domain": DOMAIN,
+        "score_type": SCORE_TYPE,
+        "frame": meaning_frame(),
     }
 
 
