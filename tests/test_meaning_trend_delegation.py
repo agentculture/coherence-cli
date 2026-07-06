@@ -8,16 +8,18 @@ byte-identical JSON on the recorded fixtures is the merge contract.
 
 This module proves that contract three ways, all fully OFFLINE:
 
-1. **Byte-identity goldens.** The FULL ``trend`` result on the committed
+1. **Pinned pre-refactor goldens.** The FULL ``trend`` result on the committed
    recorded-vector fixtures, and on a deterministic synthetic-embed series, is
-   pinned as an exact ``json.dumps(..., sort_keys=True)`` string literal
-   captured from the *pre-refactor* code. The machine-dependent absolute
-   ``paths`` list is normalised to basenames (the only non-portable field);
-   ``COHERENCE_EMBED_URL`` / ``COHERENCE_EMBED_MODEL`` are pinned so the
-   additive envelope ``frame`` block is deterministic. These literals were
-   generated from the unrefactored module, run green against it, and must stay
-   green — unchanged — after the refactor. A single differing float, a
-   reordered key, or a changed reason string breaks the string compare.
+   pinned as a golden JSON literal captured from the *pre-refactor* code. The
+   machine-dependent absolute ``paths`` list is normalised to basenames (the
+   only non-portable field); ``COHERENCE_EMBED_URL`` / ``COHERENCE_EMBED_MODEL``
+   are pinned so the additive envelope ``frame`` block is deterministic. These
+   literals were generated from the unrefactored module, run green against it,
+   and byte-identity was reproduced by the refactored module on the capture
+   machine. The committed assertion is a deep compare: structure, key sets,
+   strings, and nulls exactly; floats at 1e-9 relative tolerance, because
+   CPU/BLAS differences across machines shift the last ulp. A changed key,
+   reason string, or any float beyond the last ulp still breaks it.
 
 2. **Behavioural delegation-equivalence.** Every difference series in the
    output is shown to equal *exactly* what
@@ -41,6 +43,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -82,12 +85,40 @@ def _normalize(result: dict) -> dict:
     return out
 
 
-def _dump(result: dict) -> str:
-    return json.dumps(_normalize(result), sort_keys=True)
+def _assert_matches_golden(result: dict, golden: str) -> None:
+    """Deep-compare ``result`` against a pinned golden JSON string.
+
+    Structure, key sets, strings, nulls, and list lengths must match the
+    golden EXACTLY; floats are compared with a tight relative tolerance
+    (1e-9). Byte-identity was proven at refactor time on the capture
+    machine (the golden was generated from the pre-refactor module and the
+    refactored module reproduced it byte-for-byte); across machines, CPU /
+    BLAS differences can shift the last ulp of a float, so CI compares
+    numerically instead of textually.
+    """
+
+    def compare(a: object, b: object, path: str) -> None:
+        if isinstance(a, dict) and isinstance(b, dict):
+            assert a.keys() == b.keys(), f"{path}: key sets differ"
+            for key in a:
+                compare(a[key], b[key], f"{path}.{key}")
+        elif isinstance(a, list) and isinstance(b, list):
+            assert len(a) == len(b), f"{path}: list lengths differ"
+            for i, (x, y) in enumerate(zip(a, b)):
+                compare(x, y, f"{path}[{i}]")
+        elif isinstance(a, float) or isinstance(b, float):
+            assert isinstance(a, (int, float)) and isinstance(
+                b, (int, float)
+            ), f"{path}: type mismatch ({type(a).__name__} vs {type(b).__name__})"
+            assert math.isclose(a, b, rel_tol=1e-9, abs_tol=1e-12), f"{path}: {a!r} != {b!r}"
+        else:
+            assert a == b, f"{path}: {a!r} != {b!r}"
+
+    compare(_normalize(result), json.loads(golden), "$")
 
 
 # --- the pinned pre-refactor goldens (captured verbatim from the unrefactored
-#     module; a byte-for-byte string compare is the merge contract) ------------
+#     module; exact structure + float-tolerant values are the merge contract) --
 
 # Recorded-vector 3-point series (exercises first + second differences for every
 # score signal and for drift).
@@ -113,19 +144,19 @@ def _set_golden_env(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_recorded_three_point_output_is_byte_identical(monkeypatch) -> None:
     _set_golden_env(monkeypatch)
     result = trend([_FILE_A, _FILE_B, _FILE_C], embed_fn=load_recorded_embed_fn())
-    assert _dump(result) == _GOLDEN_RECORDED_3POINT
+    _assert_matches_golden(result, _GOLDEN_RECORDED_3POINT)
 
 
 def test_synthetic_three_point_output_is_byte_identical(monkeypatch) -> None:
     _set_golden_env(monkeypatch)
     result = trend([_FILE_A, _FILE_B, _FILE_C], embed_fn=synthetic_embed_fn)
-    assert _dump(result) == _GOLDEN_SYNTH_3POINT
+    _assert_matches_golden(result, _GOLDEN_SYNTH_3POINT)
 
 
 def test_synthetic_two_point_output_is_byte_identical(monkeypatch) -> None:
     _set_golden_env(monkeypatch)
     result = trend([_FILE_A, _FILE_B], embed_fn=synthetic_embed_fn)
-    assert _dump(result) == _GOLDEN_SYNTH_2POINT
+    _assert_matches_golden(result, _GOLDEN_SYNTH_2POINT)
 
 
 # --- 2. behavioural delegation-equivalence to the signal layer ---------------

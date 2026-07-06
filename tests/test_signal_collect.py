@@ -31,7 +31,6 @@ from coherence.schema import build_envelope, null_frame
 from coherence.signal.collect import collect, collect_files
 from coherence.signal.schema import SeriesError, load_series
 
-
 # --- helpers: build test measurement data -----------------------------------
 
 
@@ -83,7 +82,8 @@ def _quality_measurement(
             "fidelity": fidelity,
             "fidelity_confidence": 0.6,
         },
-        frame=frame or null_frame("rule_based_no_embedding_frame", code="rule_based_no_embedding_frame"),
+        frame=frame
+        or null_frame("rule_based_no_embedding_frame", code="rule_based_no_embedding_frame"),
         diagnostics=[],
     )
 

@@ -234,14 +234,8 @@ def test_reference_date_is_threaded_to_both_assessments(tmp_path, no_sockets) ->
     assert result["delta"]["freshness"] > 0.0
 
     # Should match direct score_text calls with same reference_date
-    direct_before = score_text(
-        "As of 2026-01-01, this is old.",
-        reference_date=_REF
-    )
-    direct_after = score_text(
-        "As of 2026-07-01, this is recent.",
-        reference_date=_REF
-    )
+    direct_before = score_text("As of 2026-01-01, this is old.", reference_date=_REF)
+    direct_after = score_text("As of 2026-07-01, this is recent.", reference_date=_REF)
 
     assert result["before"] == direct_before
     assert result["after"] == direct_after
