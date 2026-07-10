@@ -37,6 +37,17 @@ from coherence.meaning.score import score
 
 _SUBDIMENSIONS = ("consequence", "agency", "causality", "affordance", "future_constraint")
 
+# The three additive top-level keys the two-speed envelope adds to the meaning
+# outputs (see docs/envelope.md). These assertions are relaxed to *tolerate*
+# those additions while pinning the pre-existing keys/values exactly.
+_ADDITIVE_KEYS = {"domain", "score_type", "frame"}
+
+
+def _strip_additive(result: dict) -> dict:
+    """Return ``result`` without the three additive envelope keys."""
+    return {key: value for key, value in result.items() if key not in _ADDITIVE_KEYS}
+
+
 # --- controlled embedder: pins every anchor onto one shared axis ----------
 
 # Vectors live in a small fixed space. Every "high" anchor maps to _HIGH_VEC and
@@ -124,7 +135,9 @@ def test_compare_returns_exact_top_level_key_shape(tmp_path) -> None:
     before = _write(tmp_path, "before.md", "An aligned, meaningful claim.")
     after = _write(tmp_path, "after.md", "ANTI: a meaningless restatement.")
     result = compare(before, after, embed_fn=_make_controlled_embed())
-    assert set(result) == {"before", "after", "delta"}
+    # Additive-tolerant: the pinned v0.5.0 top-level keys are exactly these; the
+    # three additive envelope keys (domain/score_type/frame) may be added on top.
+    assert set(result) - _ADDITIVE_KEYS == {"before", "after", "delta"}
 
 
 def test_delta_has_exactly_meaning_score_and_subdimensions(tmp_path) -> None:
@@ -150,9 +163,11 @@ def test_before_and_after_are_the_full_score_dicts(tmp_path) -> None:
     before = _write(tmp_path, "before.md", "An aligned, meaningful claim.")
     after = _write(tmp_path, "after.md", "ANTI: a meaningless restatement.")
     result = compare(before, after, embed_fn=embed)
-    # The before/after blocks are exactly what score() emits for each file.
-    assert result["before"] == score(before, embed_fn=_make_controlled_embed())
-    assert result["after"] == score(after, embed_fn=_make_controlled_embed())
+    # The before/after blocks are the clean v0.5.0 shape — exactly what score()
+    # emits for each file with the additive envelope keys stripped (those keys
+    # live once at the compare result's top level, not duplicated per side).
+    assert result["before"] == _strip_additive(score(before, embed_fn=_make_controlled_embed()))
+    assert result["after"] == _strip_additive(score(after, embed_fn=_make_controlled_embed()))
     for block in (result["before"], result["after"]):
         assert set(block) == {"meaning_score", "subdimensions", "diagnostics"}
 

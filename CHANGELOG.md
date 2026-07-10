@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/). This project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.1] - 2026-07-06
+## [0.6.1] - 2026-07-11
 
 ### Added
 
@@ -16,14 +16,36 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   colleague resolve the endpoint from lobes and inject `COHERENCE_EMBED_URL` /
   `COHERENCE_EMBED_MODEL` when armed. Also notes that each meaning score is a
   model-relative, anchor-defined measurement — the embedding model and
-  anchors are the score's reference frame (gauge), never universal meaning
-  (issues #10, #11). Documentation only; no defaults, code behavior, or tests
+  anchors are the score's reference frame (gauge), never a model-independent
+  absolute (issues #10, #11). Documentation only; no defaults, code behavior, or tests
   changed.
 
-### Fixed
+## [0.6.0] - 2026-07-07
 
-- `uv.lock`'s recorded `coherence-cli` version was stale at `0.4.1` while
-  `pyproject.toml`/`CHANGELOG.md` had already moved to `0.5.0`; re-synced.
+### Added
+
+- Five-domain coherence engine: quality, meaning, signal, investiture, frames — implements issues #8, #9, #10, #11 per the converged spec/plan (PR #13). 18 tasks, 7 TDD-gated waves, 665 tests (all offline in CI).
+- quality domain (greenfield): coherence quality score/compare — offline rule-based freshness/provenance/fidelity heuristics with visible per-component confidence and honest cant-verify diagnostics (source_liveness_unverified, publication_date_unverified, no_dateable_statements...).
+- signal domain: source-agnostic series schema (docs/signal-series.md) + coherence signal trend/pattern/resonance/forecast/collect — f-prime/f-double-prime + monotonicity/volatility, six motif detectors, SIGNED pairwise alignment (positive=resonance, negative=interference, one code path), labeled next-point extrapolation with minimum-points guard, and measurements-to-series glue that carries frame provenance.
+- investiture domain: coherence investiture score/compare — estimated micro-investiture (meaning_score x agency x future_constraint x affordance) via coherence.meaning (no duplicate embed path), mode=estimated with persistence/integration/behavioral-effect explicitly null and the missing_behavioral_outcome diagnostic.
+- frames domain: coherence frames inspect/diff — provenance completeness (complete/partial/absent), gauge-comparability with differing fields named, and a mixed-frame guard wired into the series loader (mixed_frames / partially_framed warnings).
+- assess verb: `coherence assess <file>` — one multi-domain report with per-domain availability honestly reported (embed endpoint down => quality still answers, meaning/investiture listed unavailable with reasons, exit 0).
+- Shared measurement envelope (coherence/schema.py + docs/envelope.md): domain, score_type, scores, frame, diagnostics — with the two-speed adoption rule.
+- Frame provenance on meaning outputs: score/compare/trend gain ADDITIVE top-level domain/score_type/frame keys resolved from the runtime embed config; explicit null-frame with machine-readable reason on the offline path. Additive-only compatibility proven by golden tests; colleague gate verified additive-tolerant (colleague/coherence.py pass-through).
+- README + docs/domains.md: five-domain positioning, JSON contracts, planned-extensions list; banned-terms language test.
+
+### Changed
+
+- meaning trend difference math delegates to coherence.signal.trend (byte-identical output on recorded fixtures, golden-tested).
+- explain catalog: 19 new command paths + 7 frame-vocabulary concept entries; cli overview/learn list all five domains.
+
+## [0.5.1] - 2026-07-06
+
+### Added
+
+- Converged devague spec for the five-domain coherence engine restructure — quality, meaning, signal, investiture, frames (issues #8/#9/#10/#11 plus confirmed additions: quality score/compare MVP, signal forecast, assess verb, signed resonance/interference, frames inspect/diff with mixed-frame guard, signal collect): docs/specs/2026-07-06-coherence-cli-ships-as-a-five-domain-coherence-eng.md
+- Build plan (18 tasks, 7 file-disjoint waves) covering all 38 spec targets with TDD acceptance criteria: docs/plans/2026-07-06-coherence-cli-ships-as-a-five-domain-coherence-eng.md
+- Frame decisions on record: two-speed envelope adoption (new nouns emit full domain/score_type/scores/frame/diagnostics envelope; existing meaning verbs gain only additive keys), coherence/quality/ layout over claims/, meaning trend delegating to the signal layer byte-identically
 
 ## [0.5.0] - 2026-07-04
 

@@ -41,6 +41,11 @@ from coherence.meaning.trend import trend
 _SUBDIMENSIONS = ("consequence", "agency", "causality", "affordance", "future_constraint")
 _ALL_SIGNALS = ("meaning_score", *_SUBDIMENSIONS, "drift")
 
+# The three additive top-level keys the two-speed envelope adds to the meaning
+# outputs (see docs/envelope.md). Relaxed to tolerate the additions while
+# pinning the pre-existing keys exactly.
+_ADDITIVE_KEYS = {"domain", "score_type", "frame"}
+
 
 # --- controlled embedder: known scores + known drift ----------------------
 
@@ -145,7 +150,9 @@ def _three_point_series(tmp_path):
 def test_trend_returns_documented_top_level_shape(tmp_path) -> None:
     paths, embed = _three_point_series(tmp_path)
     result = trend(paths, embed_fn=embed)
-    assert set(result) == {
+    # Additive-tolerant: the pinned v0.5.0 top-level keys are exactly these; the
+    # three additive envelope keys (domain/score_type/frame) may be added on top.
+    assert set(result) - _ADDITIVE_KEYS == {
         "n",
         "paths",
         "points",

@@ -22,9 +22,9 @@ per role). Consumers such as colleague resolve the endpoint from lobes and injec
 ``COHERENCE_EMBED_URL`` / ``COHERENCE_EMBED_MODEL`` when armed.
 
 Each meaning score is a model-relative, anchor-defined measurement: the embedding
-model and anchors constitute the score's reference frame (gauge). Scores are not
-universal meaning — they are semantic measurements relative to the chosen model
-and anchor set (issues #10, #11).
+model and anchors constitute the score's reference frame (gauge). A score carries
+no model-independent semantics — it is a semantic measurement declared relative to
+the chosen model and anchor set (issues #10, #11).
 """
 
 from __future__ import annotations

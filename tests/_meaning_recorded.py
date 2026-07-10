@@ -50,7 +50,7 @@ def load_recorded_embed_fn() -> EmbedFn:
             f"recorded vectors absent at {RECORDED_PATH}; run "
             "scripts/refresh_meaning_vectors.py against a live embed gear"
         )
-    data: dict[str, list[float]] = json.loads(RECORDED_PATH.read_text(encoding="utf-8"))
+    data = _recorded_vectors()
 
     def recorded_embed_fn(texts: list[str]) -> list[list[float]]:
         vectors: list[list[float]] = []
@@ -66,3 +66,31 @@ def load_recorded_embed_fn() -> EmbedFn:
         return vectors
 
     return recorded_embed_fn
+
+
+def _load_raw() -> dict:
+    return json.loads(RECORDED_PATH.read_text(encoding="utf-8"))
+
+
+def _is_wrapped(raw: dict) -> bool:
+    """The wrapped format is ``{"metadata": {...}, "vectors": {...}}``; the
+    legacy format is a flat ``{text -> vector}`` map (whose keys are artifact
+    texts, never exactly this two-key envelope)."""
+    return set(raw) == {"metadata", "vectors"}
+
+
+def _recorded_vectors() -> dict[str, list[float]]:
+    raw = _load_raw()
+    return raw["vectors"] if _is_wrapped(raw) else raw
+
+
+def load_recorded_metadata() -> dict | None:
+    """Return the recording's provenance metadata, or ``None`` on legacy files.
+
+    The metadata is the model tie-out (issue #10 / PR #14 review): it names the
+    ``embedding_model``/``embedding_endpoint`` that produced the vectors, so a
+    replay can be checked against the frame it claims instead of silently
+    misstating provenance when the runtime env differs from the capture env.
+    """
+    raw = _load_raw()
+    return raw["metadata"] if _is_wrapped(raw) else None
