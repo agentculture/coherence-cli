@@ -178,6 +178,18 @@ environment error — an unreachable embedding endpoint makes `score` exit `2`
 with a hint naming `COHERENCE_EMBED_URL`, while the offline diagnostics still
 run.
 
+### Reference deployment
+
+The lobes gateway serves an `embedder` role, discoverable via `GET /capabilities`
+(lobes-cli >= 0.38 advertises a client-reachable endpoint per role). Consumers
+such as colleague resolve the endpoint from lobes and inject
+`COHERENCE_EMBED_URL` / `COHERENCE_EMBED_MODEL` when armed.
+
+Each meaning score is a model-relative, anchor-defined measurement: the
+embedding model and anchors constitute the score's reference frame (gauge).
+A score carries no model-independent semantics — it is a semantic measurement
+declared relative to the chosen model and anchor set (issues #10, #11).
+
 `coherence meaning score <file> --json` emits exactly:
 
 ```json
